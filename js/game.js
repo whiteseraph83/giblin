@@ -784,7 +784,7 @@ const Game = {
   applyWantedWin() {
     const char = this.state.character;
     const xp   = 60 + char.level * 15;
-    const fame = 10 + Math.floor((char.wanted || 0) / 10);
+    const fame = 30 + char.level * 5 + Math.floor((char.wanted || 0) / 5);
     char.xp   += xp;
     char.fame += fame;
     char.wanted = Math.floor((char.wanted || 0) * 0.5);
