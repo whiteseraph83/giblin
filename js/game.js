@@ -957,7 +957,7 @@ const Game = {
   maxDiceBet() {
     const char = this.state.character;
     const tier = this.getFameLevel().tier || 0;
-    return Math.max(10, 30 + char.level * 15 + tier * 35);
+    return Math.max(10, 100 + char.level * 80 + tier * 150);
   },
 
   getDiceBetOptions() {
