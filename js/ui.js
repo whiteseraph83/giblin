@@ -235,9 +235,9 @@ const UI = {
             <div class="d-flex justify-content-between align-items-center mt-2 gap-1">
               <span class="item-price"><i class="bi bi-coin"></i> ${entry.buyPrice} mo</span>
               <div class="d-flex gap-1">
-                <button class="btn btn-sm btn-outline-secondary btn-compare-item" data-itemid="${item.id}" title="Confronta con equipaggiamento">
+                ${!item.consumable ? `<button class="btn btn-sm btn-outline-secondary btn-compare-item" data-itemid="${item.id}" title="Confronta con equipaggiamento">
                   <i class="bi bi-arrow-left-right"></i>
-                </button>
+                </button>` : ''}
                 <button class="btn btn-sm ${canBuy ? 'btn-gold' : 'btn-outline-secondary'} btn-buy-item"
                   data-itemid="${item.id}"
                   ${!canBuy ? 'disabled' : ''}>

@@ -354,6 +354,11 @@ const Game = {
 
   /* ─── Oggetti ──────────────────────────────────────────── */
   rollItemByTier(tier) {
+    // 30% chance di ottenere un consumabile del tier corrispondente
+    if (Math.random() < 0.30) {
+      const cPool = DB.items.filter(i => i.tier === tier && i.consumable);
+      if (cPool.length) return cPool[Math.floor(Math.random() * cPool.length)];
+    }
     const pool = DB.items.filter(i => i.tier === tier);
     if (!pool.length) return null;
     return pool[Math.floor(Math.random() * pool.length)];
@@ -504,11 +509,11 @@ const Game = {
       generated.push({ itemId: item.id, buyPrice: Math.round(item.buyPrice * variance) });
     }
 
-    // 1-2 consumabili (esclusi quelli con marketExcluded)
+    // 2-3 consumabili (esclusi quelli con marketExcluded)
     const consumablePool = DB.items.filter(i => i.consumable && !i.marketExcluded &&
       (i.tier || 1) <= Math.ceil(char.level / 3) + 1 && !usedIds.has(i.id));
     const shuffledC = [...consumablePool].sort(() => Math.random() - 0.5);
-    const cCount = 1 + Math.floor(Math.random() * 2); // 1 or 2
+    const cCount = 2 + Math.floor(Math.random() * 2); // 2 or 3
     for (let i = 0; i < Math.min(cCount, shuffledC.length); i++) {
       const item = shuffledC[i];
       usedIds.add(item.id);
@@ -574,13 +579,23 @@ const Game = {
       reward = { type: 'xp', amount: xp };
       outcomeText = 'Lezione pratica acquisita mentre alleggerivi qualche borsellino.';
     } else {
-      // 20% — oggetto
-      const maxQ = Math.ceil(char.level / 2);
-      const item = this.rollItemWithQuality(maxQ);
+      // 20% — oggetto (35% chance consumabile, 65% equipaggiamento)
+      let item;
+      if (Math.random() < 0.35) {
+        const maxTier = Math.ceil(char.level / 3) + 1;
+        const cPool = DB.items.filter(i => i.consumable && (i.tier || 1) <= maxTier);
+        item = cPool.length ? cPool[Math.floor(Math.random() * cPool.length)] : null;
+      }
+      if (!item) {
+        const maxQ = Math.ceil(char.level / 2);
+        item = this.rollItemWithQuality(maxQ);
+      }
       if (item) {
         char.inventory.push(item.id);
         reward = { type: 'item', item };
-        outcomeText = 'Colpo speciale! Hai trovato qualcosa di interessante.';
+        outcomeText = item.consumable
+          ? 'Tasca alleggerita e bottino insolito trovato!'
+          : 'Colpo speciale! Hai trovato qualcosa di interessante.';
       } else {
         const gold = this.rollGold(40, 80 + char.level * 10);
         char.gold += gold;
