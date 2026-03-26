@@ -952,6 +952,13 @@ body {
 .dice-face-sm { width: 28px; height: 28px; font-size: .9rem; }
 .dice-total   { font-size: 1.1rem; font-weight: 700; min-width: 28px; text-align: right; color: #e8d5b0; }
 
+/* Animazione ingresso riga durante la rivelazione live */
+@keyframes diceRowIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dice-row-new { animation: diceRowIn 0.32s ease forwards; }
+
 .dice-result-row {
   display: flex; align-items: center; gap: 10px;
   padding: 8px 12px; margin-bottom: 6px;
