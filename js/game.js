@@ -648,7 +648,7 @@ const Game = {
     const char       = this.state.character;
     const RARE_STATS = new Set(['str', 'con', 'wis', 'cha']);
     const RARE_W     = 3;   // peso 3× per le stat rare
-    const count      = 4 + Math.floor(Math.random() * 2); // 4–5 missioni visibili
+    const count      = 7 + Math.floor(Math.random() * 3); // 7–9 missioni visibili
 
     const fameOk = DB.missions.filter(m => m.minFame <= char.fame);
 
