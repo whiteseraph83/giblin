@@ -152,7 +152,7 @@ const App = {
     // Rilancio borseggio
     document.getElementById('btn-pickpocket-reroll').addEventListener('click', () => {
       if (!Game.useReroll()) { UI.toast('Nessun rilancio disponibile.'); return; }
-      const newSpeed = 0.3 + Math.random() * 0.7;
+      const newSpeed = 0.55 + Math.random() * 0.8;
       UI.openPickpocketGame();
       this._startPickpocketGame(newSpeed);
     });
@@ -349,11 +349,11 @@ const App = {
     const cursor = document.getElementById('pp-cursor');
     const hint   = document.getElementById('pp-speed-hint');
 
-    // Hint velocità
-    const pct = (speed - 0.3) / 0.7;
-    if (pct < 0.33)      hint.textContent = 'Velocità: Lenta 🐢  (poca ricompensa)';
-    else if (pct < 0.66) hint.textContent = 'Velocità: Media 🦊';
-    else                 hint.textContent = 'Velocità: Veloce ⚡ (ricompensa bonus)';
+    // Hint velocità (range 0.55–1.35)
+    const pct = (speed - 0.55) / 0.8;
+    if (pct < 0.33)      hint.textContent = 'Velocità: Media 🦊';
+    else if (pct < 0.66) hint.textContent = 'Velocità: Veloce ⚡ (ricompensa bonus)';
+    else                 hint.textContent = 'Velocità: Fulminea 🔥 (ricompensa massima!)';
 
     let pos = 0;
     let dir = 1;

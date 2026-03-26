@@ -559,7 +559,7 @@ const Game = {
     }
     this.state.pickpocketsUsed++;
     this.save();
-    const speed = 0.3 + Math.random() * 0.7;
+    const speed = 0.55 + Math.random() * 0.8;
     return { ok: true, speed };
   },
 
