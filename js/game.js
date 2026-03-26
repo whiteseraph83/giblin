@@ -501,22 +501,22 @@ const Game = {
     let reward = null;
     let outcomeText = '';
 
-    if (roll100 <= 60) {
-      // 60% — oro (importo significativo)
-      const baseGold = this.rollGold(15, 50 + char.level * 8);
+    if (roll100 <= 55) {
+      // 55% — oro
+      const baseGold = this.rollGold(30, 90 + char.level * 18);
       const gold = Math.floor(baseGold * (1 + abilities.goldBonus) * speedMult);
       char.gold += gold;
       reward = { type: 'gold', amount: gold };
       outcomeText = 'Mano veloce! Tasca alleggerita con successo.';
-    } else if (roll100 <= 85) {
+    } else if (roll100 <= 80) {
       // 25% — esperienza
-      const baseXp = this.rollGold(15, 40 + char.level * 5);
+      const baseXp = this.rollGold(30, 70 + char.level * 12);
       const xp = Math.floor(baseXp * (1 + abilities.xpBonus) * speedMult);
       char.xp += xp;
       reward = { type: 'xp', amount: xp };
       outcomeText = 'Lezione pratica acquisita mentre alleggerivi qualche borsellino.';
     } else {
-      // 15% — oggetto (raro)
+      // 20% — oggetto
       const maxQ = Math.ceil(char.level / 2);
       const item = this.rollItemWithQuality(maxQ);
       if (item) {
@@ -524,7 +524,7 @@ const Game = {
         reward = { type: 'item', item };
         outcomeText = 'Colpo speciale! Hai trovato qualcosa di interessante.';
       } else {
-        const gold = this.rollGold(20, 40);
+        const gold = this.rollGold(40, 80 + char.level * 10);
         char.gold += gold;
         reward = { type: 'gold', amount: gold };
         outcomeText = 'Niente di speciale, ma qualche moneta in più non fa male.';
