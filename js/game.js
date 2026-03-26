@@ -963,16 +963,20 @@ const Game = {
   maxDiceBet() {
     const char = this.state.character;
     const tier = this.getFameLevel().tier || 0;
-    return Math.max(50, 500 + char.level * 500 + tier * 800);
+    // Curva quadratica: piccolo a basso livello, grande ad alto livello
+    // Lv1≈50  Lv3≈400  Lv5≈1100  Lv7≈2500  Lv10≈4500 (+ bonus fama)
+    return Math.max(10, char.level * char.level * 45 + tier * 250);
   },
 
   getDiceBetOptions() {
     const max   = this.maxDiceBet();
     const avail = this.state.character.gold;
+    // Arrotonda alle 5 mo più vicine per valori più puliti
+    const r5 = v => Math.max(1, Math.round(v / 5) * 5);
     return [
-      Math.min(max,                        avail),
-      Math.min(Math.floor(max * 2 / 3),    avail),
-      Math.min(Math.floor(max / 3),        avail),
+      Math.min(max,           avail),
+      Math.min(r5(max * 2/3), avail),
+      Math.min(r5(max / 3),   avail),
     ].map(v => Math.max(1, v));
   },
 
