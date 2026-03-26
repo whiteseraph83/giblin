@@ -190,7 +190,7 @@ const App = {
       if (!result.ok) { UI.toast(result.reason); return; }
       this._diceResult = result;
       document.getElementById('dice-rerolls-remaining').textContent = Game.diceRerollsRemaining();
-      UI.renderDiceRollingPhase(this._diceBet, result.ranked);
+      UI.renderDiceRollingPhase(this._diceBet, [...result.ranked].sort(() => Math.random() - 0.5));
       this._startDiceAnimation(result);
     });
 
@@ -203,7 +203,7 @@ const App = {
       if (!result.ok) { UI.toast(result.reason); return; }
       this._diceResult = result;
       document.getElementById('dice-rerolls-remaining').textContent = Game.diceRerollsRemaining();
-      UI.renderDiceRollingPhase(this._diceBet, result.ranked);
+      UI.renderDiceRollingPhase(this._diceBet, [...result.ranked].sort(() => Math.random() - 0.5));
       this._startDiceAnimation(result);
     });
 
