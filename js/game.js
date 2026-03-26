@@ -182,9 +182,14 @@ const Game = {
       char.fame += e.fame || 0;
       result = { xp: e.xp||0, gold: e.gold||0, fame: e.fame||0 };
     } else {
-      const boost = { id: `b_${Date.now()}`, name: item.name,
-        xpBoost: e.xpBoost||0, goldBoost: e.goldBoost||0, fameBoost: e.fameBoost||0, daysLeft: e.duration };
+      // Blocca se c'è già un boost attivo dello stesso tipo (stesso itemId)
       if (!this.state.activeBoosts) this.state.activeBoosts = [];
+      const alreadyActive = this.state.activeBoosts.some(b => b.itemId === itemId);
+      if (alreadyActive) {
+        return { ok: false, reason: `"${item.name}" è già attivo! Aspetta che scada prima di usarne un altro.` };
+      }
+      const boost = { id: `b_${Date.now()}`, itemId, name: item.name,
+        xpBoost: e.xpBoost||0, goldBoost: e.goldBoost||0, fameBoost: e.fameBoost||0, daysLeft: e.duration };
       this.state.activeBoosts.push(boost);
       result = { boost };
     }

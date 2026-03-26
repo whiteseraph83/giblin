@@ -524,12 +524,13 @@ const App = {
     const INTERVAL = 60;   // ms
     let elapsed = 0;
 
-    const faceId = (name, n) => `dface-${name.replace(/\s/g,'_')}-${n}`;
-    const totalId = name => `dtotal-${name.replace(/\s/g,'_')}`;
+    const faceId  = (name, n) => `dface-${name.replace(/\s/g,'_')}-${n}`;
+    const totalId = name       => `dtotal-${name.replace(/\s/g,'_')}`;
+    const rowId   = name       => `dice-row-${name.replace(/\s/g,'_')}`;
 
     this._diceAnimInterval = setInterval(() => {
       elapsed += INTERVAL;
-      // Cycle all dice with random values
+      // Cicla tutti i dadi con valori casuali durante l'animazione
       for (const p of result.ranked) {
         const el1 = document.getElementById(faceId(p.name, 1));
         const el2 = document.getElementById(faceId(p.name, 2));
@@ -540,26 +541,56 @@ const App = {
       if (elapsed >= DURATION) {
         clearInterval(this._diceAnimInterval);
         this._diceAnimInterval = null;
-        // Settle on real dice values — il totale e la classifica vengono
-        // mostrati solo nella fase "risultato", non qui durante il tiro
+
+        // 1) Mostra il risultato reale di Giblin, nascondi tutti gli NPC
         for (const p of result.ranked) {
-          const el1 = document.getElementById(faceId(p.name, 1));
-          const el2 = document.getElementById(faceId(p.name, 2));
-          if (el1) el1.textContent = p.d1;
-          if (el2) el2.textContent = p.d2;
-          // il totale rimane "?" fino alla schermata risultato
-        }
-        // After short pause, check for reroll offer or switch to result
-        setTimeout(() => {
-          if (result.giblinRank !== 1 && Game.diceRerollsRemaining() > 0) {
-            // Offri reroll se non si è arrivati primi
-            document.getElementById('dice-roll-btn-area').classList.add('d-none');
-            document.getElementById('dice-offer-rerolls').textContent = Game.diceRerollsRemaining();
-            document.getElementById('dice-reroll-offer').classList.remove('d-none');
+          const row = document.getElementById(rowId(p.name));
+          if (p.isPlayer) {
+            const el1   = document.getElementById(faceId(p.name, 1));
+            const el2   = document.getElementById(faceId(p.name, 2));
+            const elTot = document.getElementById(totalId(p.name));
+            if (el1)   el1.textContent   = p.d1;
+            if (el2)   el2.textContent   = p.d2;
+            if (elTot) elTot.textContent = p.total;
           } else {
-            this._applyAndShowDiceResult(result);
+            // Nascondi subito con fade-out
+            if (row) { row.style.transition = 'opacity 0.25s'; row.style.opacity = '0'; }
           }
-        }, 600);
+        }
+
+        // 2) Rivelazione progressiva degli NPC in ordine di classifica
+        // result.ranked è già ordinato: indice 0 = 1°, ..., 3 = 4°
+        // Saltiamo Giblin (già visibile) e rivediamo gli NPC uno per uno
+        const toReveal = result.ranked.filter(p => !p.isPlayer);
+        let idx = 0;
+        const revealNext = () => {
+          if (idx >= toReveal.length) {
+            // Tutti rivelati → offri reroll oppure mostra risultato
+            setTimeout(() => {
+              if (result.giblinRank !== 1 && Game.diceRerollsRemaining() > 0) {
+                document.getElementById('dice-roll-btn-area').classList.add('d-none');
+                document.getElementById('dice-offer-rerolls').textContent = Game.diceRerollsRemaining();
+                document.getElementById('dice-reroll-offer').classList.remove('d-none');
+              } else {
+                this._applyAndShowDiceResult(result);
+              }
+            }, 350);
+            return;
+          }
+          const p    = toReveal[idx++];
+          const row  = document.getElementById(rowId(p.name));
+          const el1  = document.getElementById(faceId(p.name, 1));
+          const el2  = document.getElementById(faceId(p.name, 2));
+          const elTot = document.getElementById(totalId(p.name));
+          if (el1)   el1.textContent   = p.d1;
+          if (el2)   el2.textContent   = p.d2;
+          if (elTot) elTot.textContent = p.total;
+          if (row)   { row.style.transition = 'opacity 0.3s'; row.style.opacity = '1'; }
+          setTimeout(revealNext, 500);
+        };
+
+        // Breve pausa prima di iniziare la rivelazione
+        setTimeout(revealNext, 500);
       }
     }, INTERVAL);
   },

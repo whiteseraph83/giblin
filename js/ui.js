@@ -424,10 +424,22 @@ const UI = {
     footer.innerHTML = '';
 
     if (context.source === 'inventory' && item.consumable) {
-      // Consumable: show "Usa" button
+      // Controlla se c'è già un boost attivo dello stesso tipo
+      const boosts = Game.state.activeBoosts || [];
+      const alreadyActive = item.effect?.type === 'boost' && boosts.some(b => b.itemId === item.id);
+
+      if (alreadyActive) {
+        // Mostra avviso — pulsante disabilitato
+        const warn = document.createElement('span');
+        warn.className = 'small text-warning fst-italic me-2';
+        warn.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Bonus già attivo';
+        footer.appendChild(warn);
+      }
+
       const useBtn = document.createElement('button');
       useBtn.className = 'btn btn-success btn-sm';
       useBtn.innerHTML = '<i class="bi bi-flask-fill"></i> Usa';
+      useBtn.disabled  = alreadyActive;
       useBtn.addEventListener('click', () => App.useConsumableFromModal());
       footer.appendChild(useBtn);
 
