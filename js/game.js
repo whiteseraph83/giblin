@@ -190,7 +190,7 @@ const Game = {
     }
     char.inventory.splice(idx, 1);
     const logEntry = { day: char.day, text: `Usato: ${item.name}`, type: 'success' };
-    char.log.unshift(logEntry); if (char.log.length > 50) char.log.pop();
+    char.log.unshift(logEntry); if (char.log.length > 200) char.log.pop();
     const completedChallenges = this.checkChallenges('passive');
     this.checkLevelUp(); this.save();
     return { ok: true, result, completedChallenges };
@@ -338,7 +338,7 @@ const Game = {
       type: logType
     };
     char.log.unshift(logEntry);
-    if (char.log.length > 50) char.log.pop();
+    if (char.log.length > 200) char.log.pop();
 
     const levelUpResult = this.checkLevelUp();
 
@@ -608,7 +608,7 @@ const Game = {
 
     const logEntry = { day: char.day, text: 'Borseggio riuscito', type: 'success' };
     char.log.unshift(logEntry);
-    if (char.log.length > 50) char.log.pop();
+    if (char.log.length > 200) char.log.pop();
 
     const levelUpResult = this.checkLevelUp();
     const completedChallenges = this.checkChallenges('pickpocket_success');
@@ -621,7 +621,7 @@ const Game = {
     char.wanted = (char.wanted || 0) + 18;
     const logEntry = { day: char.day, text: 'Borseggio fallito', type: 'fail' };
     char.log.unshift(logEntry);
-    if (char.log.length > 50) char.log.pop();
+    if (char.log.length > 200) char.log.pop();
     this.save();
     return { success: false, reward: null, outcomeText: 'Le dita non erano abbastanza veloci. Niente da fare.' };
   },
@@ -645,7 +645,7 @@ const Game = {
       char.gold -= tax;
       const logEntry = { day: char.day, text: `Tassa della Gilda pagata: ${tax} mo`, type: 'text' };
       char.log.unshift(logEntry);
-      if (char.log.length > 50) char.log.pop();
+      if (char.log.length > 200) char.log.pop();
       return { paid: true, tax, fameLost: 0 };
     } else {
       // Non può pagare: perde fama
@@ -653,7 +653,7 @@ const Game = {
       char.fame = Math.max(0, char.fame - fameLost);
       const logEntry = { day: char.day, text: `Impossibile pagare la tassa! -${fameLost} fama`, type: 'fail' };
       char.log.unshift(logEntry);
-      if (char.log.length > 50) char.log.pop();
+      if (char.log.length > 200) char.log.pop();
 
       if (char.fame <= 0) {
         this.state.gameOver = true;
@@ -716,7 +716,7 @@ const Game = {
 
     const logEntry = { day: char.day, text: `Livello ${char.level} raggiunto!`, type: 'levelup' };
     char.log.unshift(logEntry);
-    if (char.log.length > 50) char.log.pop();
+    if (char.log.length > 200) char.log.pop();
 
     this.save();
   },
@@ -791,7 +791,7 @@ const Game = {
     this.state.wantedMissionCompleted = true;
     const logEntry = { day: char.day, text: 'Cacciatore di taglie sconfitto! Taglia ridotta.', type: 'success' };
     char.log.unshift(logEntry);
-    if (char.log.length > 50) char.log.pop();
+    if (char.log.length > 200) char.log.pop();
     const completedChallenges = this.checkChallenges('passive');
     this.save();
     return { xp, fame, wantedAfter: char.wanted, completedChallenges };
@@ -805,7 +805,7 @@ const Game = {
     this.state.wantedMissionCompleted = true;
     const logEntry = { day: char.day, text: 'Sconfitto dal cacciatore di taglie! Metà oro perduto.', type: 'fail' };
     char.log.unshift(logEntry);
-    if (char.log.length > 50) char.log.pop();
+    if (char.log.length > 200) char.log.pop();
     this.save();
     return { goldLost };
   },
@@ -1036,7 +1036,7 @@ const Game = {
     const logEntry = { day: char.day, text: logText,
       type: result.outcome === 'win' ? 'success' : result.outcome === 'last' ? 'fail' : 'neutral' };
     char.log.unshift(logEntry);
-    if (char.log.length > 50) char.log.pop();
+    if (char.log.length > 200) char.log.pop();
     const completedChallenges = this.checkChallenges('passive');
     const levelUpResult = this.checkLevelUp();
     this.save();
