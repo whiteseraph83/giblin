@@ -27,6 +27,8 @@ const Game = {
           if (this.state.character.wanted === undefined)       this.state.character.wanted = 0;
           if (this.state.wantedMissionPending === undefined)   this.state.wantedMissionPending = false;
           if (this.state.wantedMissionCompleted === undefined) this.state.wantedMissionCompleted = false;
+          if (!this.state.activeBoosts)                        this.state.activeBoosts = [];
+          if (this.state.diceRerollsUsed === undefined)        this.state.diceRerollsUsed = 0;
           return true;
         }
       } catch (e) {
@@ -65,6 +67,8 @@ const Game = {
       rerollsUsed: 0,
       wantedMissionPending: false,
       wantedMissionCompleted: false,
+      activeBoosts: [],
+      diceRerollsUsed: 0,
       gameOver: false
     };
     this.generateDailyMissions();
@@ -137,7 +141,7 @@ const Game = {
 
   /* ─── Abilità aggregate equipaggiamento ─────────────────── */
   getEquipmentAbilities() {
-    const result = { pickpocketBonus: 0, rerollBonus: 0, taxDiscount: 0, goldBonus: 0, xpBonus: 0, missionBonus: 0, challengeBonus: 0, challengeRefresh: 0 };
+    const result = { pickpocketBonus: 0, rerollBonus: 0, taxDiscount: 0, goldBonus: 0, xpBonus: 0, missionBonus: 0, challengeBonus: 0, challengeRefresh: 0, diceRerollBonus: 0 };
     for (const itemId of Object.values(this.state.character.equipment)) {
       if (!itemId) continue;
       const item = DB.items.find(i => i.id === itemId);
@@ -150,8 +154,46 @@ const Game = {
       result.missionBonus      += item.abilities.missionBonus    || 0;
       result.challengeBonus    += item.abilities.challengeBonus  || 0;
       result.challengeRefresh  += item.abilities.challengeRefresh || 0;
+      result.diceRerollBonus   += item.abilities.diceRerollBonus  || 0;
     }
     return result;
+  },
+
+  /* ─── Boost attivi (consumabili) ───────────────────────── */
+  getActiveBoostMultipliers() {
+    return (this.state.activeBoosts || []).reduce(
+      (acc, b) => ({ xp: acc.xp + (b.xpBoost||0), gold: acc.gold + (b.goldBoost||0), fame: acc.fame + (b.fameBoost||0) }),
+      { xp: 0, gold: 0, fame: 0 }
+    );
+  },
+
+  useConsumable(itemId) {
+    const char = this.state.character;
+    const item = DB.items.find(i => i.id === itemId);
+    if (!item?.consumable) return { ok: false, reason: 'Non è un consumabile.' };
+    const idx = char.inventory.indexOf(itemId);
+    if (idx === -1) return { ok: false, reason: 'Oggetto non trovato.' };
+
+    const e = item.effect;
+    let result = {};
+    if (e.type === 'instant') {
+      char.xp   += e.xp   || 0;
+      char.gold += e.gold || 0;
+      char.fame += e.fame || 0;
+      result = { xp: e.xp||0, gold: e.gold||0, fame: e.fame||0 };
+    } else {
+      const boost = { id: `b_${Date.now()}`, name: item.name,
+        xpBoost: e.xpBoost||0, goldBoost: e.goldBoost||0, fameBoost: e.fameBoost||0, daysLeft: e.duration };
+      if (!this.state.activeBoosts) this.state.activeBoosts = [];
+      this.state.activeBoosts.push(boost);
+      result = { boost };
+    }
+    char.inventory.splice(idx, 1);
+    const logEntry = { day: char.day, text: `Usato: ${item.name}`, type: 'success' };
+    char.log.unshift(logEntry); if (char.log.length > 50) char.log.pop();
+    const completedChallenges = this.checkChallenges('passive');
+    this.checkLevelUp(); this.save();
+    return { ok: true, result, completedChallenges };
   },
 
   /* ─── Borseggio ─────────────────────────────────────────── */
@@ -222,19 +264,19 @@ const Game = {
     let outcomeText = '';
 
     const XP_MULT = 1.4; // moltiplicatore globale XP
+    const boost   = this.getActiveBoostMultipliers();
 
     if (isSuccess) {
       let baseXp   = Math.floor(mission.rewards.xp * XP_MULT);
       let baseGold = this.rollGold(mission.rewards.goldMin, mission.rewards.goldMax);
       if (check.result === 'nat20') baseXp = Math.floor(baseXp * 1.5);
 
-      // Apply bonuses
-      baseXp   = Math.floor(baseXp   * (1 + abilities.xpBonus));
-      baseGold = Math.floor(baseGold * (1 + abilities.goldBonus));
+      baseXp   = Math.floor(baseXp   * (1 + abilities.xpBonus   + boost.xp));
+      baseGold = Math.floor(baseGold * (1 + abilities.goldBonus  + boost.gold));
 
       rewards.xp   = baseXp;
       rewards.gold = baseGold;
-      rewards.fame = mission.rewards.fameXp;
+      rewards.fame = Math.floor(mission.rewards.fameXp * (1 + boost.fame));
 
       if (Math.random() < mission.rewards.itemChance) {
         rewards.item = this.rollItemByTier(mission.rewards.itemTier);
@@ -249,8 +291,8 @@ const Game = {
         Math.floor(mission.rewards.goldMin * 0.5),
         Math.floor(mission.rewards.goldMax * 0.5)
       );
-      baseXp   = Math.floor(baseXp   * (1 + abilities.xpBonus));
-      baseGold = Math.floor(baseGold * (1 + abilities.goldBonus));
+      baseXp   = Math.floor(baseXp   * (1 + abilities.xpBonus   + boost.xp));
+      baseGold = Math.floor(baseGold * (1 + abilities.goldBonus  + boost.gold));
 
       rewards.xp   = baseXp;
       rewards.gold = baseGold;
@@ -417,7 +459,8 @@ const Game = {
       cumulative += weights[q - 1];
       if (rand < cumulative) { chosenQuality = q; break; }
     }
-    const pool = DB.items.filter(i => i.quality === chosenQuality);
+    // Escludi consumabili dalla pool normale (hanno la loro sezione nel mercato)
+    const pool = DB.items.filter(i => i.quality === chosenQuality && !i.consumable);
     if (!pool.length) return null;
     return pool[Math.floor(Math.random() * pool.length)];
   },
@@ -435,10 +478,10 @@ const Game = {
     const generated = [];
     const usedIds   = new Set();
 
-    const tryGetItem = (weights, attempts = 30) => {
+    const tryGetItem = (weights, attempts = 30, consumableOnly = false) => {
       for (let a = 0; a < attempts; a++) {
-        const item = this.rollItemWithQualityWeights(weights);
-        if (item && !usedIds.has(item.id)) return item;
+        const item = this.rollItemWithQualityWeights(weights, consumableOnly);
+        if (item && !usedIds.has(item.id) && !item.marketExcluded) return item;
       }
       return null;
     };
@@ -458,6 +501,18 @@ const Game = {
       if (!item) continue;
       usedIds.add(item.id);
       const variance = 0.85 + Math.random() * 0.30;
+      generated.push({ itemId: item.id, buyPrice: Math.round(item.buyPrice * variance) });
+    }
+
+    // 1-2 consumabili (esclusi quelli con marketExcluded)
+    const consumablePool = DB.items.filter(i => i.consumable && !i.marketExcluded &&
+      (i.tier || 1) <= Math.ceil(char.level / 3) + 1 && !usedIds.has(i.id));
+    const shuffledC = [...consumablePool].sort(() => Math.random() - 0.5);
+    const cCount = 1 + Math.floor(Math.random() * 2); // 1 or 2
+    for (let i = 0; i < Math.min(cCount, shuffledC.length); i++) {
+      const item = shuffledC[i];
+      usedIds.add(item.id);
+      const variance = 0.90 + Math.random() * 0.20;
       generated.push({ itemId: item.id, buyPrice: Math.round(item.buyPrice * variance) });
     }
 
@@ -607,7 +662,13 @@ const Game = {
     // Reset contatori giornalieri
     this.state.pickpocketsUsed        = 0;
     this.state.rerollsUsed            = 0;
+    this.state.diceRerollsUsed        = 0;
     this.state.wantedMissionCompleted = false;
+
+    // Decrementa boost attivi
+    this.state.activeBoosts = (this.state.activeBoosts || [])
+      .map(b => ({ ...b, daysLeft: b.daysLeft - 1 }))
+      .filter(b => b.daysLeft > 0);
 
     this.generateDailyMissions();
     this.generateMarketItems();
@@ -875,6 +936,96 @@ const Game = {
     const char = this.state.character;
     if (char.level >= 10) return '—';
     return DB.xpTable[char.level - 1];
+  },
+
+  /* ─── Gioco dei Dadi ────────────────────────────────────── */
+  maxDiceBet() {
+    const char = this.state.character;
+    const tier = this.getFameLevel().tier || 0;
+    return Math.max(10, 30 + char.level * 15 + tier * 35);
+  },
+
+  getDiceBetOptions() {
+    const max   = this.maxDiceBet();
+    const avail = this.state.character.gold;
+    return [
+      Math.min(max,                        avail),
+      Math.min(Math.floor(max * 2 / 3),    avail),
+      Math.min(Math.floor(max / 3),        avail),
+    ].map(v => Math.max(1, v));
+  },
+
+  /* Rapidità di Mano — reroll dadi */
+  diceRerollsAvailable() {
+    return 2 + (this.getEquipmentAbilities().diceRerollBonus || 0);
+  },
+  diceRerollsRemaining() {
+    return Math.max(0, this.diceRerollsAvailable() - (this.state.diceRerollsUsed || 0));
+  },
+  useDiceReroll() {
+    if (this.diceRerollsRemaining() <= 0) return false;
+    this.state.diceRerollsUsed = (this.state.diceRerollsUsed || 0) + 1;
+    this.save();
+    return true;
+  },
+
+  /* Calcola il risultato senza applicarlo */
+  rollDiceGame(bet) {
+    if (bet <= 0 || this.state.character.gold < bet) return { ok: false, reason: 'Oro insufficiente.' };
+    const char = this.state.character;
+
+    const roll2d6 = () => {
+      const total = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
+      const d1min = Math.max(1, total - 6);
+      const d1max = Math.min(6, total - 1);
+      const d1 = d1min + Math.floor(Math.random() * (d1max - d1min + 1));
+      return { d1, d2: total - d1, total };
+    };
+
+    const npcPool = [...DICE_NPC_NAMES].sort(() => Math.random() - 0.5);
+    const giblinDice = roll2d6();
+    const players = [
+      { name: 'Giblin',   isPlayer: true,  ...giblinDice },
+      { name: npcPool[0], isPlayer: false, ...roll2d6()  },
+      { name: npcPool[1], isPlayer: false, ...roll2d6()  },
+      { name: npcPool[2], isPlayer: false, ...roll2d6()  },
+    ];
+    const ranked     = [...players].sort((a, b) =>
+      b.total !== a.total ? b.total - a.total : (a.isPlayer ? -1 : 1));
+    const giblinRank = ranked.findIndex(p => p.isPlayer) + 1;
+
+    let goldDelta, fameDelta = 0, xp = 0, outcome;
+    if (giblinRank === 1) {
+      goldDelta = bet * 3; xp = 100 + char.level * 24; outcome = 'win';
+    } else if (giblinRank === 4) {
+      goldDelta = -bet; fameDelta = -(3 + Math.floor(char.level / 2)); outcome = 'last';
+    } else {
+      const pct = giblinRank === 2 ? 0.4 : 0.15;
+      goldDelta = Math.floor(bet * pct) - bet;
+      xp = giblinRank === 2 ? 50 + char.level * 12 : 20 + char.level * 6;
+      outcome = 'consolation';
+    }
+    return { ok: true, ranked, giblinRank, bet, goldDelta, fameDelta, xp, outcome };
+  },
+
+  /* Applica il risultato finale allo stato */
+  applyDiceGameResult(result) {
+    const char = this.state.character;
+    char.gold += result.goldDelta;
+    char.fame  = Math.max(0, char.fame + result.fameDelta);
+    char.xp   += result.xp;
+    const logText = result.outcome === 'win'
+      ? `Dadi: vittoria! +${result.goldDelta} mo`
+      : result.outcome === 'last' ? `Dadi: ultimo posto, -${result.bet} mo`
+      : `Dadi: ${result.giblinRank}° posto (${result.goldDelta >= 0 ? '+' : ''}${result.goldDelta} mo)`;
+    const logEntry = { day: char.day, text: logText,
+      type: result.outcome === 'win' ? 'success' : result.outcome === 'last' ? 'fail' : 'neutral' };
+    char.log.unshift(logEntry);
+    if (char.log.length > 50) char.log.pop();
+    const completedChallenges = this.checkChallenges('passive');
+    this.checkLevelUp();
+    this.save();
+    return { ...result, completedChallenges };
   },
 
   statLabel(statKey) {

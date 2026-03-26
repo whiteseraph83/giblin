@@ -62,6 +62,45 @@ const UI = {
     document.getElementById('wanted-display').style.opacity    = wanted === 0 ? '0.4' : '1';
   },
 
+  /* ─── Boost attivi ─────────────────────────────────────── */
+  renderActiveBoosts() {
+    if (!Game.state) return;
+    const boosts = Game.state.activeBoosts || [];
+    const el     = document.getElementById('active-boosts-display');
+    if (!el) return;
+    if (!boosts.length) { el.classList.add('d-none'); return; }
+    el.classList.remove('d-none');
+    document.getElementById('active-boosts-list').innerHTML = boosts.map(b => {
+      const parts = [];
+      if (b.xpBoost)   parts.push(`+${Math.round(b.xpBoost*100)}% PE`);
+      if (b.goldBoost)  parts.push(`+${Math.round(b.goldBoost*100)}% oro`);
+      if (b.fameBoost) parts.push(`+${Math.round(b.fameBoost*100)}% fama`);
+      return `<div class="boost-badge">
+        <span class="boost-name">${b.name}</span>
+        <span class="text-success small">${parts.join(' ')}</span>
+        <span class="boost-days">${b.daysLeft}g</span>
+      </div>`;
+    }).join('');
+  },
+
+  _consumableEffectHtml(item) {
+    if (!item?.effect) return '';
+    const e = item.effect;
+    if (e.type === 'instant') {
+      const parts = [];
+      if (e.xp)   parts.push(`+${e.xp} PE`);
+      if (e.gold)  parts.push(`+${e.gold} mo`);
+      if (e.fame)  parts.push(`+${e.fame} fama`);
+      return `<div class="reward-row"><span class="reward-icon">⚡</span><span class="text-success">${parts.join(', ')}</span> <span class="text-muted small">(istantaneo)</span></div>`;
+    } else {
+      const parts = [];
+      if (e.xpBoost)   parts.push(`+${Math.round(e.xpBoost*100)}% PE`);
+      if (e.goldBoost)  parts.push(`+${Math.round(e.goldBoost*100)}% oro`);
+      if (e.fameBoost) parts.push(`+${Math.round(e.fameBoost*100)}% fama`);
+      return `<div class="reward-row"><span class="reward-icon">⏱️</span><span class="text-info">${parts.join(' ')}</span> <span class="text-muted small">per ${e.duration} giorni</span></div>`;
+    }
+  },
+
   /* ─── Pickpocket button ─────────────────────────────────── */
   renderPickpocketBtn() {
     const remaining = Game.pickpocketsRemaining();
@@ -360,6 +399,8 @@ const UI = {
       reqHtml += `<div class="d-flex justify-content-between"><span class="text-muted">${Game.statLabel(item.reqStat.key)} richiesta</span><span class="${effVal >= item.reqStat.val ? 'text-success' : 'text-danger'}">${item.reqStat.val}</span></div>`;
     }
 
+    const effectHtml = item.consumable ? `<div class="item-modal-section mb-2"><div class="text-gold small mb-1">Effetto</div>${this._consumableEffectHtml(item)}</div>` : '';
+
     document.getElementById('item-modal-body').innerHTML = `
       <div class="mb-2 d-flex gap-2 align-items-center">
         <span style="font-size:1.5rem">${slotMeta.icon}</span>
@@ -368,6 +409,7 @@ const UI = {
           <div class="small fst-italic text-light">${item.desc}</div>
         </div>
       </div>
+      ${effectHtml}
       ${statsHtml ? `<div class="item-modal-section mb-2"><div class="text-gold small mb-1">Statistiche</div>${statsHtml}</div>` : ''}
       ${abilitiesHtml ? `<div class="item-modal-section mb-2"><div class="text-gold small mb-1">Abilità speciali</div>${abilitiesHtml}</div>` : ''}
       ${reqHtml ? `<div class="item-modal-section mb-2"><div class="text-gold small mb-1">Requisiti</div>${reqHtml}</div>` : ''}
@@ -381,7 +423,15 @@ const UI = {
     const footer   = document.getElementById('item-modal-footer');
     footer.innerHTML = '';
 
-    if (context.source === 'inventory') {
+    if (context.source === 'inventory' && item.consumable) {
+      // Consumable: show "Usa" button
+      const useBtn = document.createElement('button');
+      useBtn.className = 'btn btn-success btn-sm';
+      useBtn.innerHTML = '<i class="bi bi-flask-fill"></i> Usa';
+      useBtn.addEventListener('click', () => App.useConsumableFromModal());
+      footer.appendChild(useBtn);
+
+    } else if (context.source === 'inventory') {
       // Equip button
       const levelOk = char.level >= (item.reqLevel || 1);
       const statOk  = !item.reqStat || Game.effectiveStat(item.reqStat.key) >= item.reqStat.val;
@@ -869,6 +919,7 @@ const UI = {
     this.renderCharacter();
     this.renderPickpocketBtn();
     this.renderGuildTaxInfo();
+    this.renderActiveBoosts();
     this.renderWantedMission();
     this.renderMissions();
     this.renderMarket();
@@ -1026,6 +1077,81 @@ const UI = {
     return parts.join(' ');
   },
 
+  /* ─── Tab Gioca a Dadi ───────────────────────────────────── */
+  renderDiceBetPhase() {
+    const opts  = Game.getDiceBetOptions();
+    const gold  = Game.state.character.gold;
+    const max   = Game.maxDiceBet();
+    const labels = ['Alta', 'Media', 'Bassa'];
+    const styles = ['btn-gold', 'btn-outline-warning', 'btn-outline-secondary'];
+
+    document.getElementById('dice-max-info').textContent =
+      `Posta massima: ${max} mo  ·  Oro disponibile: ${gold} mo`;
+
+    const warn = document.getElementById('dice-gold-warn');
+    if (gold < 1) { warn.style.display = 'block'; }
+    else          { warn.style.display = 'none';  }
+
+    document.getElementById('dice-bet-options').innerHTML = opts.map((v, i) => `
+      <div class="col-4">
+        <button class="btn ${styles[i]} w-100 dice-bet-btn ${gold < v ? 'disabled' : ''}"
+          data-bet="${v}">
+          <div class="small text-muted">${labels[i]}</div>
+          <div style="font-size:1.1rem;font-weight:700;">${v} mo</div>
+        </button>
+      </div>`).join('');
+  },
+
+  renderDiceRollingPhase(bet, players) {
+    document.getElementById('dice-bet-display').textContent = `${bet} mo`;
+    document.getElementById('dice-players-container').innerHTML = players.map(p => `
+      <div class="dice-player-row ${p.isPlayer ? 'dice-player-giblin' : ''}" id="dice-row-${p.name.replace(/\s/g,'_')}">
+        <div class="dice-player-name">${p.isPlayer ? '⚔️ ' : ''}${p.name}</div>
+        <div class="dice-faces">
+          <div class="dice-face" id="dface-${p.name.replace(/\s/g,'_')}-1">?</div>
+          <div class="dice-face" id="dface-${p.name.replace(/\s/g,'_')}-2">?</div>
+        </div>
+        <div class="dice-total" id="dtotal-${p.name.replace(/\s/g,'_')}">?</div>
+      </div>`).join('');
+  },
+
+  renderDiceResultPhase(result) {
+    const rankIcons = ['🏆', '🥈', '🥉', '💀'];
+    const titles    = ['VITTORIA!', '2° POSTO', '3° POSTO', 'ULTIMO'];
+    const titleColors = ['#f1c40f', '#bdc3c7', '#cd7f32', '#e74c3c'];
+    const descs = [
+      'Hai rastrellato il piatto!',
+      'Premio di consolazione.',
+      'Consolazione minima.',
+      'Hai perso tutto e la tua reputazione ne risente.',
+    ];
+
+    const gi = result.giblinRank - 1;
+    const titleEl = document.getElementById('dice-result-title');
+    titleEl.textContent = `${rankIcons[gi]} ${titles[gi]}`;
+    titleEl.style.color = titleColors[gi];
+    document.getElementById('dice-result-desc').textContent = descs[gi];
+
+    document.getElementById('dice-ranking-container').innerHTML =
+      result.ranked.map((p, i) => `
+        <div class="dice-result-row ${p.isPlayer ? 'dice-result-player' : ''}">
+          <span class="dice-rank-icon">${rankIcons[i]}</span>
+          <span class="dice-result-name">${p.name}</span>
+          <div class="dice-faces small">
+            <div class="dice-face dice-face-sm">${p.d1}</div>
+            <div class="dice-face dice-face-sm">${p.d2}</div>
+          </div>
+          <span class="dice-result-total">= ${p.total}</span>
+        </div>`).join('');
+
+    const rewards = [];
+    if (result.goldDelta > 0)  rewards.push(`<div class="reward-row"><span class="reward-icon">💰</span> +${result.goldDelta} mo</div>`);
+    if (result.goldDelta < 0)  rewards.push(`<div class="reward-row text-danger"><span class="reward-icon">💰</span> ${result.goldDelta} mo</div>`);
+    if (result.xp > 0)         rewards.push(`<div class="reward-row"><span class="reward-icon">⭐</span> +${result.xp} PE</div>`);
+    if (result.fameDelta < 0)  rewards.push(`<div class="reward-row text-danger"><span class="reward-icon">👁️</span> ${result.fameDelta} fama</div>`);
+    document.getElementById('dice-result-rewards').innerHTML = rewards.join('');
+  },
+
   _abilitiesLong(abilities) {
     if (!abilities) return '';
     const parts = [];
@@ -1037,6 +1163,7 @@ const UI = {
     if (abilities.missionBonus    > 0) parts.push(`<div class="d-flex justify-content-between"><span class="text-muted">Missioni extra/giorno</span><span class="text-info">+${abilities.missionBonus}</span></div>`);
     if (abilities.challengeBonus  > 0) parts.push(`<div class="d-flex justify-content-between"><span class="text-muted">Sfide extra/giorno</span><span class="text-info">+${abilities.challengeBonus}</span></div>`);
     if (abilities.challengeRefresh> 0) parts.push(`<div class="d-flex justify-content-between"><span class="text-muted">Refresh sfide/giorno</span><span class="text-info">${abilities.challengeRefresh}</span></div>`);
+    if (abilities.diceRerollBonus > 0) parts.push(`<div class="d-flex justify-content-between"><span class="text-muted">🃏 Rapidità di Mano extra</span><span class="text-info">+${abilities.diceRerollBonus}</span></div>`);
     return parts.join('');
   }
 };

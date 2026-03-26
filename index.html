@@ -120,6 +120,12 @@
             <div class="small text-end mt-1" id="wanted-points" style="color:#aaa;">0 pt</div>
           </div>
 
+          <!-- Boost attivi -->
+          <div id="active-boosts-display" class="d-none mb-2">
+            <div class="small mb-1" style="color:#52b788;"><i class="bi bi-arrow-up-circle-fill"></i> Potenziamenti attivi</div>
+            <div id="active-boosts-list"></div>
+          </div>
+
           <!-- Pickpocket button -->
           <div class="mb-2">
             <button class="btn btn-pickpocket w-100" id="btn-pickpocket">
@@ -178,6 +184,11 @@
           <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-challenges">
             <i class="bi bi-trophy"></i> Sfide
             <span id="challenges-badge" class="badge bg-warning text-dark ms-1 d-none">!</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-dice">
+            <i class="bi bi-dice-5"></i> Gioca a Dadi
           </button>
         </li>
         <li class="nav-item">
@@ -272,6 +283,65 @@
           </div>
           <div id="challenges-container">
             <div class="text-muted text-center py-4">Caricamento sfide...</div>
+          </div>
+        </div>
+
+        <!-- TAB: GIOCA A DADI -->
+        <div class="tab-pane fade" id="tab-dice">
+          <div class="card-dark" style="max-width:520px;margin:0 auto;">
+            <div class="card-dark-header text-center" style="font-family:'Cinzel',serif;letter-spacing:.08em;">
+              <i class="bi bi-dice-5 me-2"></i>Il Tavolo dei Dadi
+            </div>
+            <div class="card-dark-body p-3">
+
+              <!-- FASE: SCOMMESSA -->
+              <div id="dice-phase-bet">
+                <div class="text-center text-muted small mb-3" id="dice-max-info"></div>
+                <div class="row g-2 mb-2" id="dice-bet-options"></div>
+                <div class="text-center text-muted small mt-2" id="dice-gold-warn" style="color:#e74c3c;display:none">Oro insufficiente per scommettere.</div>
+              </div>
+
+              <!-- FASE: TIRO -->
+              <div id="dice-phase-rolling" class="d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div><span class="small text-muted">Scommessa: </span><span class="text-warning" id="dice-bet-display"></span></div>
+                  <div class="small" id="dice-rerolls-badge" style="color:#e9c46a;">
+                    🃏 Rapidità di Mano: <span id="dice-rerolls-remaining">2</span>
+                  </div>
+                </div>
+                <div id="dice-players-container" class="mb-4"></div>
+                <div class="text-center" id="dice-roll-btn-area">
+                  <button class="btn btn-gold" id="btn-dice-roll">
+                    <i class="bi bi-dice-5-fill me-1"></i>Tira i Dadi!
+                  </button>
+                </div>
+                <!-- Offerta reroll (visibile solo se Giblin è ultimo) -->
+                <div id="dice-reroll-offer" class="d-none text-center mt-3 p-3" style="border:1px solid rgba(231,76,60,.4);border-radius:8px;background:rgba(231,76,60,.08);">
+                  <div class="text-danger mb-1 fw-bold">Sei arrivato ultimo!</div>
+                  <div class="small text-muted mb-3">Hai <span id="dice-offer-rerolls">2</span> Rapidità di Mano rimaste. Vuoi ritirare i dadi?</div>
+                  <div class="d-flex justify-content-center gap-2">
+                    <button class="btn btn-warning btn-sm" id="btn-dice-use-reroll">🃏 Ritira i Dadi</button>
+                    <button class="btn btn-outline-danger btn-sm" id="btn-dice-accept-loss">Accetta sconfitta</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE: RISULTATO -->
+              <div id="dice-phase-result" class="d-none">
+                <div class="text-center mb-3">
+                  <div id="dice-result-title" style="font-family:'Cinzel',serif;font-size:1.3rem;"></div>
+                  <div id="dice-result-desc"  class="small text-muted mt-1"></div>
+                </div>
+                <div id="dice-ranking-container" class="mb-3"></div>
+                <div id="dice-result-rewards" class="mission-rewards mb-3"></div>
+                <div class="text-center">
+                  <button class="btn btn-outline-light btn-sm" id="btn-dice-again">
+                    <i class="bi bi-arrow-repeat me-1"></i>Gioca ancora
+                  </button>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
 

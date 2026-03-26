@@ -19,8 +19,17 @@ const SLOT_META = {
   ring:      { icon: '💍', label: 'Anello',        bi: 'bi-circle'          },
   ringRight: { icon: '💍', label: 'Anello',        bi: 'bi-circle'          },
   ringLeft:  { icon: '💍', label: 'Anello',        bi: 'bi-circle-fill'     },
-  weapon:    { icon: '🗡️', label: 'Arma',         bi: 'bi-scissors'        }
+  weapon:     { icon: '🗡️',  label: 'Arma',         bi: 'bi-scissors'       },
+  consumable: { icon: '⚗️',  label: 'Consumabile',  bi: 'bi-flask-fill'     },
 };
+
+/* ── NOMI NPC GIOCO DADI ─────────────────────────────────── */
+const DICE_NPC_NAMES = [
+  'Bardo Ronin', 'Nana Harpell', 'Il Goblin Grasso', 'Mercante Brunn',
+  'Capitano Vex', 'Strega Ilda', 'Nano Thorek', 'Elfo Aerindel',
+  'La Volpe', 'Zingaro Teto', 'Spia Morenna', 'Cavaliere Senza Nome',
+  'Taverniere Brog', 'Maga Sylvara', 'Contrabbandiere Fen',
+];
 
 /* ── LIVELLI TAGLIA ──────────────────────────────────────── */
 const WANTED_LEVELS = [
@@ -651,10 +660,10 @@ const DB = {
       abilities: { pickpocketBonus: 1, rerollBonus: 0, taxDiscount: 0, goldBonus: 0, xpBonus: 0 },
       buyPrice: 360, sellPrice: 144 },
 
-    { id: 304, name: "Guanti del Fantasma",         slot: "gloves", quality: 4, tier: 2, reqLevel: 6, reqStat: { key: 'dex', val: 15 },
-      desc: "Le mani passano attraverso le tasche come se non esistessero.",
-      stats: { dex: 4 },
-      abilities: { pickpocketBonus: 2, rerollBonus: 0, taxDiscount: 0, goldBonus: 0, xpBonus: 0 },
+    { id: 304, name: "Guanti del Baro",              slot: "gloves", quality: 4, tier: 2, reqLevel: 5, reqStat: { key: 'dex', val: 14 },
+      desc: "Guanti leggeri con dita sensibilissime. Un baro esperto ci trova un vantaggio al tavolo.",
+      stats: { dex: 3 },
+      abilities: { pickpocketBonus: 1, rerollBonus: 0, taxDiscount: 0, goldBonus: 0, xpBonus: 0, diceRerollBonus: 1 },
       buyPrice: 870, sellPrice: 348 },
 
     { id: 305, name: "Guanti dell'Invisibile",      slot: "gloves", quality: 5, tier: 3, reqLevel: 8, reqStat: { key: 'dex', val: 17 },
@@ -828,7 +837,80 @@ const DB = {
       desc: "Permette di rifiutare una sfida e sceglierne una diversa una volta al giorno.",
       stats: { wis: 2, cha: 2 },
       abilities: { pickpocketBonus: 0, rerollBonus: 0, taxDiscount: 0, goldBonus: 0, xpBonus: 0, challengeBonus: 0, challengeRefresh: 1 },
-      buyPrice: 480, sellPrice: 192 }
+      buyPrice: 480, sellPrice: 192 },
+
+    /* ── CONSUMABILI ──────────────────────────────────────── */
+    // Istantanei
+    { id: 901, name: "Pozione dell'Illuminazione", slot: 'consumable', consumable: true,
+      quality: 1, tier: 1, reqLevel: 1, reqStat: null,
+      desc: "Un liquido luminescente che acuisce la mente. Uso singolo.",
+      stats: {}, abilities: {},
+      effect: { type: 'instant', xp: 60, gold: 0, fame: 0 },
+      buyPrice: 35, sellPrice: 10 },
+
+    { id: 902, name: "Borsa del Mendicante", slot: 'consumable', consumable: true, marketExcluded: true,
+      quality: 1, tier: 1, reqLevel: 1, reqStat: null,
+      desc: "Una piccola borsa gonfia di monete raccolte da fonti dubbie.",
+      stats: {}, abilities: {},
+      effect: { type: 'instant', xp: 0, gold: 40, fame: 0 },
+      buyPrice: 25, sellPrice: 8 },
+
+    { id: 903, name: "Medaglione della Gilda", slot: 'consumable', consumable: true,
+      quality: 2, tier: 1, reqLevel: 1, reqStat: null,
+      desc: "Mostrarlo nei posti giusti vale qualche parola di rispetto.",
+      stats: {}, abilities: {},
+      effect: { type: 'instant', xp: 0, gold: 0, fame: 15 },
+      buyPrice: 50, sellPrice: 15 },
+
+    { id: 904, name: "Pergamena dell'Erudito", slot: 'consumable', consumable: true,
+      quality: 2, tier: 2, reqLevel: 3, reqStat: null,
+      desc: "Contiene segreti rubati da una biblioteca arcana. Leggerla vale un'esperienza.",
+      stats: {}, abilities: {},
+      effect: { type: 'instant', xp: 180, gold: 0, fame: 0 },
+      buyPrice: 90, sellPrice: 28 },
+
+    { id: 905, name: "Sacchetto di Gemme Tagliate", slot: 'consumable', consumable: true, marketExcluded: true,
+      quality: 3, tier: 2, reqLevel: 4, reqStat: null,
+      desc: "Pietre preziose trafugate da un gioielliere. Conversione rapida in oro.",
+      stats: {}, abilities: {},
+      effect: { type: 'instant', xp: 0, gold: 120, fame: 0 },
+      buyPrice: 110, sellPrice: 35 },
+
+    // Boost temporanei
+    { id: 906, name: "Elisir della Fortuna", slot: 'consumable', consumable: true,
+      quality: 2, tier: 1, reqLevel: 2, reqStat: null,
+      desc: "Porta fortuna ai tuoi affari per qualche giorno. Oro aumentato.",
+      stats: {}, abilities: {},
+      effect: { type: 'boost', duration: 2, xpBoost: 0, goldBoost: 0.25, fameBoost: 0 },
+      buyPrice: 70, sellPrice: 22 },
+
+    { id: 907, name: "Estratto di Concentrazione", slot: 'consumable', consumable: true,
+      quality: 3, tier: 2, reqLevel: 3, reqStat: null,
+      desc: "Distillato da erbe rare. Acuisce i sensi per qualche giorno.",
+      stats: {}, abilities: {},
+      effect: { type: 'boost', duration: 3, xpBoost: 0.30, goldBoost: 0, fameBoost: 0 },
+      buyPrice: 120, sellPrice: 38 },
+
+    { id: 908, name: "Incenso della Reputazione", slot: 'consumable', consumable: true,
+      quality: 3, tier: 2, reqLevel: 4, reqStat: null,
+      desc: "Il suo profumo è associato ai grandi ladri. Aumenta il rispetto guadagnato.",
+      stats: {}, abilities: {},
+      effect: { type: 'boost', duration: 3, xpBoost: 0, goldBoost: 0, fameBoost: 0.25 },
+      buyPrice: 130, sellPrice: 40 },
+
+    { id: 909, name: "Elisir dell'Expertise", slot: 'consumable', consumable: true,
+      quality: 4, tier: 3, reqLevel: 6, reqStat: null,
+      desc: "Formula segreta della gilda degli alchimisti. Amplifica sia l'apprendimento che i guadagni.",
+      stats: {}, abilities: {},
+      effect: { type: 'boost', duration: 3, xpBoost: 0.30, goldBoost: 0.20, fameBoost: 0 },
+      buyPrice: 280, sellPrice: 90 },
+
+    { id: 910, name: "Benedizione del Pantheon", slot: 'consumable', consumable: true,
+      quality: 5, tier: 3, reqLevel: 8, reqStat: null,
+      desc: "Una reliquia sacra ai ladri. Chi la usa è benedetto dagli dèi del crimine.",
+      stats: {}, abilities: {},
+      effect: { type: 'boost', duration: 5, xpBoost: 0.50, goldBoost: 0.30, fameBoost: 0.20 },
+      buyPrice: 600, sellPrice: 200 },
 
   ],
 

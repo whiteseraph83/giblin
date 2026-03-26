@@ -13,6 +13,10 @@ const App = {
   _wantedAnimFrameId:   null,
   _wantedClickHandler:  null,
   _wantedRoundsWon:     0,
+  _dicePhase:           'bet',   // 'bet' | 'rolling' | 'result'
+  _diceBet:             0,
+  _diceResult:          null,
+  _diceAnimInterval:    null,
 
   /* ─── Bootstrap ───────────────────────────────────────── */
   init() {
@@ -159,6 +163,71 @@ const App = {
     document.getElementById('modal-wanted').addEventListener('hidden.bs.modal', () => {
       this._cancelWantedGame();
       UI.refresh();
+    });
+
+    // Gioca a Dadi — scommessa (delegated)
+    document.getElementById('dice-bet-options').addEventListener('click', e => {
+      const btn = e.target.closest('.dice-bet-btn');
+      if (!btn || btn.classList.contains('disabled') || !Game.state) return;
+      const bet = parseInt(btn.dataset.bet, 10);
+      if (isNaN(bet) || bet <= 0) return;
+      this._diceBet   = bet;
+      this._dicePhase = 'rolling';
+      this._diceResult = null;
+      this._showDicePhase();
+      // Pre-render rolling phase (all "?")
+      const players = [
+        { name: 'Giblin', isPlayer: true },
+        { name: '???', isPlayer: false }, { name: '???', isPlayer: false }, { name: '???', isPlayer: false },
+      ];
+      UI.renderDiceRollingPhase(bet, players);
+    });
+
+    // Tira i dadi
+    document.getElementById('btn-dice-roll').addEventListener('click', () => {
+      if (!Game.state || this._dicePhase !== 'rolling') return;
+      const result = Game.rollDiceGame(this._diceBet);
+      if (!result.ok) { UI.toast(result.reason); return; }
+      this._diceResult = result;
+      document.getElementById('dice-rerolls-remaining').textContent = Game.diceRerollsRemaining();
+      UI.renderDiceRollingPhase(this._diceBet, result.ranked);
+      this._startDiceAnimation(result);
+    });
+
+    // Rapidità di Mano — ritira i dadi
+    document.getElementById('btn-dice-use-reroll').addEventListener('click', () => {
+      if (!Game.useDiceReroll()) return;
+      document.getElementById('dice-reroll-offer').classList.add('d-none');
+      document.getElementById('dice-roll-btn-area').classList.remove('d-none');
+      const result = Game.rollDiceGame(this._diceBet);
+      if (!result.ok) { UI.toast(result.reason); return; }
+      this._diceResult = result;
+      document.getElementById('dice-rerolls-remaining').textContent = Game.diceRerollsRemaining();
+      UI.renderDiceRollingPhase(this._diceBet, result.ranked);
+      this._startDiceAnimation(result);
+    });
+
+    // Accetta sconfitta senza ritirare
+    document.getElementById('btn-dice-accept-loss').addEventListener('click', () => {
+      document.getElementById('dice-reroll-offer').classList.add('d-none');
+      this._applyAndShowDiceResult(this._diceResult);
+    });
+
+    // Gioca ancora
+    document.getElementById('btn-dice-again').addEventListener('click', () => {
+      this._dicePhase  = 'bet';
+      this._diceBet    = 0;
+      this._diceResult = null;
+      document.getElementById('btn-dice-roll').disabled = false;
+      document.getElementById('dice-roll-btn-area').classList.remove('d-none');
+      document.getElementById('dice-reroll-offer').classList.add('d-none');
+      this._showDicePhase();
+      UI.renderDiceBetPhase();
+    });
+
+    // Tab dice — render bet phase when entering
+    document.querySelector('[data-bs-target="#tab-dice"]')?.addEventListener('shown.bs.tab', () => {
+      if (this._dicePhase === 'bet') UI.renderDiceBetPhase();
     });
   },
 
@@ -413,6 +482,68 @@ const App = {
     }
   },
 
+  _applyAndShowDiceResult(result) {
+    const applied = Game.applyDiceGameResult(result);
+    this._dicePhase = 'result';
+    this._showDicePhase();
+    UI.renderDiceResultPhase(applied);
+    if (applied.completedChallenges?.length) this._handleChallenges(applied.completedChallenges);
+    UI.refresh();
+  },
+
+  /* ─── Gioco dei Dadi ────────────────────────────────────── */
+  _showDicePhase() {
+    document.getElementById('dice-phase-bet').classList.toggle('d-none',     this._dicePhase !== 'bet');
+    document.getElementById('dice-phase-rolling').classList.toggle('d-none', this._dicePhase !== 'rolling');
+    document.getElementById('dice-phase-result').classList.toggle('d-none',  this._dicePhase !== 'result');
+  },
+
+  _startDiceAnimation(result) {
+    document.getElementById('btn-dice-roll').disabled = true;
+    const DURATION = 1600; // ms
+    const INTERVAL = 60;   // ms
+    let elapsed = 0;
+
+    const faceId = (name, n) => `dface-${name.replace(/\s/g,'_')}-${n}`;
+    const totalId = name => `dtotal-${name.replace(/\s/g,'_')}`;
+
+    this._diceAnimInterval = setInterval(() => {
+      elapsed += INTERVAL;
+      // Cycle all dice with random values
+      for (const p of result.ranked) {
+        const el1 = document.getElementById(faceId(p.name, 1));
+        const el2 = document.getElementById(faceId(p.name, 2));
+        if (el1) el1.textContent = Math.ceil(Math.random() * 6);
+        if (el2) el2.textContent = Math.ceil(Math.random() * 6);
+      }
+
+      if (elapsed >= DURATION) {
+        clearInterval(this._diceAnimInterval);
+        this._diceAnimInterval = null;
+        // Settle on real values
+        for (const p of result.ranked) {
+          const el1   = document.getElementById(faceId(p.name, 1));
+          const el2   = document.getElementById(faceId(p.name, 2));
+          const elTot = document.getElementById(totalId(p.name));
+          if (el1)   el1.textContent   = p.d1;
+          if (el2)   el2.textContent   = p.d2;
+          if (elTot) elTot.textContent = p.total;
+        }
+        // After short pause, check for reroll offer or switch to result
+        setTimeout(() => {
+          if (result.outcome === 'last' && Game.diceRerollsRemaining() > 0) {
+            // Offer reroll before applying penalties
+            document.getElementById('dice-roll-btn-area').classList.add('d-none');
+            document.getElementById('dice-offer-rerolls').textContent = Game.diceRerollsRemaining();
+            document.getElementById('dice-reroll-offer').classList.remove('d-none');
+          } else {
+            this._applyAndShowDiceResult(result);
+          }
+        }, 600);
+      }
+    }, INTERVAL);
+  },
+
   _cancelWantedGame() {
     cancelAnimationFrame(this._wantedAnimFrameId);
     this._wantedAnimFrameId = null;
@@ -474,6 +605,31 @@ const App = {
     bootstrap.Modal.getInstance(document.getElementById('modal-item'))?.hide();
     Game.unequipItem(slot);
     UI.toast('Oggetto rimosso.');
+    UI.refresh();
+  },
+
+  useConsumableFromModal() {
+    const itemId = parseInt(document.getElementById('item-modal-itemid').value, 10);
+    const result = Game.useConsumable(itemId);
+    if (!result.ok) { UI.toast(result.reason); return; }
+
+    bootstrap.Modal.getInstance(document.getElementById('modal-item'))?.hide();
+
+    const r = result.result;
+    if (r.boost) {
+      const parts = [];
+      if (r.boost.xpBoost)   parts.push(`+${Math.round(r.boost.xpBoost*100)}% PE`);
+      if (r.boost.goldBoost)  parts.push(`+${Math.round(r.boost.goldBoost*100)}% oro`);
+      if (r.boost.fameBoost) parts.push(`+${Math.round(r.boost.fameBoost*100)}% fama`);
+      UI.toast(`✨ ${r.boost.name}: ${parts.join(', ')} per ${r.boost.daysLeft} giorni`, 4000);
+    } else {
+      const parts = [];
+      if (r.xp)   parts.push(`+${r.xp} PE`);
+      if (r.gold)  parts.push(`+${r.gold} mo`);
+      if (r.fame)  parts.push(`+${r.fame} fama`);
+      UI.toast(`✨ ${parts.join(', ')}`, 3000);
+    }
+    if (result.completedChallenges?.length) this._handleChallenges(result.completedChallenges);
     UI.refresh();
   },
 
