@@ -1011,14 +1011,22 @@ const Game = {
 
     let goldDelta, fameDelta = 0, xp = 0, outcome;
     if (giblinRank === 1) {
-      goldDelta = bet * 3; xp = 100 + char.level * 24; outcome = 'win';
+      goldDelta = bet * 3;
+      xp        = 100 + char.level * 24 + Math.floor(bet * 0.12);
+      fameDelta = 3 + Math.floor(bet / 40);
+      outcome   = 'win';
     } else if (giblinRank === 4) {
-      goldDelta = -bet; fameDelta = -(3 + Math.floor(char.level / 2)); outcome = 'last';
+      goldDelta = -bet;
+      fameDelta = -(3 + Math.floor(char.level / 2));
+      outcome   = 'last';
     } else {
       const pct = giblinRank === 2 ? 0.4 : 0.15;
       goldDelta = Math.floor(bet * pct) - bet;
-      xp = giblinRank === 2 ? 50 + char.level * 12 : 20 + char.level * 6;
-      outcome = 'consolation';
+      xp        = giblinRank === 2
+        ? 50 + char.level * 12 + Math.floor(bet * 0.06)
+        : 20 + char.level * 6  + Math.floor(bet * 0.03);
+      fameDelta = giblinRank === 2 ? 1 + Math.floor(bet / 100) : 0;
+      outcome   = 'consolation';
     }
     return { ok: true, ranked, giblinRank, bet, goldDelta, fameDelta, xp, outcome };
   },
