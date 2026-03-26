@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Sfondo circolare -->
+  <circle cx="50" cy="50" r="48" fill="#0d0d1a" stroke="#2e2e50" stroke-width="2"/>
+
+  <!-- Cappuccio / mantello (parte posteriore) -->
+  <ellipse cx="50" cy="38" rx="26" ry="30" fill="#1a1a2e"/>
+  <path d="M24 55 Q20 75 30 85 Q50 95 70 85 Q80 75 76 55 Z" fill="#1a1a2e"/>
+
+  <!-- Cappuccio (parte anteriore, ombra) -->
+  <path d="M28 30 Q32 10 50 12 Q68 10 72 30 Q65 22 50 22 Q35 22 28 30 Z" fill="#131325"/>
+
+  <!-- Viso (zona scura sotto il cappuccio) -->
+  <ellipse cx="50" cy="42" rx="16" ry="14" fill="#111120"/>
+
+  <!-- Occhi brillanti (oro) -->
+  <ellipse cx="44" cy="40" rx="3" ry="2.5" fill="#c9a84c" opacity="0.9"/>
+  <ellipse cx="56" cy="40" rx="3" ry="2.5" fill="#c9a84c" opacity="0.9"/>
+  <!-- Pupille -->
+  <ellipse cx="44.5" cy="40" rx="1.5" ry="1.5" fill="#0d0d1a"/>
+  <ellipse cx="56.5" cy="40" rx="1.5" ry="1.5" fill="#0d0d1a"/>
+  <!-- Riflesso occhi -->
+  <circle cx="45" cy="39" r="0.6" fill="white" opacity="0.7"/>
+  <circle cx="57" cy="39" r="0.6" fill="white" opacity="0.7"/>
+
+  <!-- Maschera / sciarpa sul viso -->
+  <path d="M34 44 Q50 50 66 44 L66 48 Q50 54 34 48 Z" fill="#2d6a4f" opacity="0.8"/>
+
+  <!-- Bordo cappuccio (oro) -->
+  <path d="M28 30 Q50 18 72 30" fill="none" stroke="#c9a84c" stroke-width="1.5" opacity="0.7"/>
+
+  <!-- Spalle / mantello -->
+  <path d="M26 54 Q18 62 22 78 Q30 88 40 88" fill="none" stroke="#1a1a2e" stroke-width="8" stroke-linecap="round"/>
+  <path d="M74 54 Q82 62 78 78 Q70 88 60 88" fill="none" stroke="#1a1a2e" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Pugnale visibile (sul fianco destro) -->
+  <line x1="68" y1="62" x2="75" y2="78" stroke="#c9a84c" stroke-width="2" stroke-linecap="round"/>
+  <rect x="64" y="60" width="6" height="3" rx="1" fill="#8a6e2a"/>
+  <!-- Guardia del pugnale -->
+  <line x1="62" y1="63" x2="72" y2="63" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Gemma sulla fibbia / petto -->
+  <circle cx="50" cy="58" r="3" fill="#2d6a4f" stroke="#c9a84c" stroke-width="1"/>
+  <circle cx="50" cy="58" r="1.5" fill="#40916c"/>
+
+  <!-- Alone / glow sottile intorno al personaggio -->
+  <circle cx="50" cy="50" r="47" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.3"/>
+</svg>
