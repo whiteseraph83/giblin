@@ -1,1 +1,4 @@
 DirectoryIndex index.html
+
+# Blocca indicizzazione motori di ricerca
+Header set X-Robots-Tag "noindex, nofollow"
