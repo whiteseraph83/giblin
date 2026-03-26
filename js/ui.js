@@ -182,7 +182,7 @@ const UI = {
       if (!statOk)  warningHtml += `<div class="small text-warning mt-1"><i class="bi bi-exclamation-triangle"></i> ${Game.statLabel(item.reqStat.key)} ${item.reqStat.val} richiesta</div>`;
 
       return `<div class="col-md-6 col-lg-4">
-        <div class="item-card market-card">
+        <div class="item-card market-card${!levelOk || !statOk ? ' item-req-fail' : ''}">
           <div class="item-card-header" style="border-color:${qd.color}20; background:${qd.color}12;">
             <span class="item-slot-icon">${slotMeta.icon}</span>
             <span class="item-card-name" style="color:${qd.color}">${item.name}</span>
@@ -283,8 +283,11 @@ const UI = {
       if (!item) return '';
       const qd       = QUALITY[item.quality];
       const slotMeta = SLOT_META[item.slot];
+      const char     = Game.state.character;
+      const _levelOk = char.level >= (item.reqLevel || 1);
+      const _statOk  = !item.reqStat || Game.effectiveStat(item.reqStat.key) >= item.reqStat.val;
       return `<div class="col-6 col-md-4">
-        <div class="item-card inv-item-card" role="button" tabindex="0"
+        <div class="item-card inv-item-card${!_levelOk || !_statOk ? ' item-req-fail' : ''}" role="button" tabindex="0"
           data-itemid="${itemId}">
           <div class="d-flex align-items-center gap-1 mb-1">
             <span class="quality-dot" style="background:${qd.color};"></span>
@@ -389,6 +392,20 @@ const UI = {
       if (!levelOk) equipBtn.title = `Richiede Lv.${item.reqLevel}`;
       equipBtn.addEventListener('click', () => App.equipItemFromModal());
       footer.appendChild(equipBtn);
+
+      // Compare button (solo se c'è qualcosa equipaggiato nello stesso slot)
+      const targetSlots = item.slot === 'ring' ? ['ringRight', 'ringLeft'] : [item.slot];
+      const hasEquipped = targetSlots.some(s => char.equipment[s]);
+      if (hasEquipped) {
+        const cmpBtn = document.createElement('button');
+        cmpBtn.className = 'btn btn-outline-secondary btn-sm';
+        cmpBtn.innerHTML = '<i class="bi bi-arrow-left-right"></i> Confronta';
+        cmpBtn.addEventListener('click', () => {
+          bootstrap.Modal.getInstance(document.getElementById('modal-item'))?.hide();
+          this.showCompareModal(item.id);
+        });
+        footer.appendChild(cmpBtn);
+      }
 
       // Sell button
       const sellBtn = document.createElement('button');

@@ -66,6 +66,11 @@ const CHALLENGE_POOL = [
   { id: 23, type: 'mission_nat20',      desc: 'Ottieni un 20 naturale in una prova di missione',     icon: '🎯', condition: {},                       reward: { xp: 150, gold: 60,  fame: 15 } },
   { id: 24, type: 'buy_item',           desc: 'Acquista un oggetto dal Mercato Nero',                icon: '🛒', condition: {},                       reward: { xp: 50,  gold: 0,   fame: 5  } },
   { id: 25, type: 'complete_missions',  desc: 'Completa almeno 1 missione oggi',                     icon: '📋', condition: { count: 1 },             reward: { xp: 40,  gold: 15,  fame: 3  } },
+  { id: 26, type: 'sell_item',          desc: 'Vendi un oggetto Comune',                             icon: '🪙', condition: { quality: 1 },           reward: { xp: 40,  gold: 20,  fame: 3  } },
+  { id: 27, type: 'sell_item',          desc: 'Vendi un oggetto Non Comune',                         icon: '💚', condition: { quality: 2 },           reward: { xp: 70,  gold: 35,  fame: 6  } },
+  { id: 28, type: 'sell_item',          desc: 'Vendi un oggetto Raro',                               icon: '💙', condition: { quality: 3 },           reward: { xp: 110, gold: 55,  fame: 10 } },
+  { id: 29, type: 'sell_item',          desc: 'Vendi un oggetto Epico',                              icon: '💜', condition: { quality: 4 },           reward: { xp: 180, gold: 90,  fame: 18 } },
+  { id: 30, type: 'sell_item',          desc: 'Vendi un oggetto Leggendario',                        icon: '🟠', condition: { quality: 5 },           reward: { xp: 300, gold: 150, fame: 30 } },
 ];
 
 const DB = {
@@ -837,10 +842,15 @@ const DB = {
 
   /* ── LIVELLI FAMA ────────────────────────────────────── */
   fameLevels: [
-    { min: 0,   title: "Sconosciuto", tier: 1 },
-    { min: 50,  title: "Conosciuto",  tier: 2 },
-    { min: 150, title: "Noto",        tier: 2 },
-    { min: 300, title: "Famigerato",  tier: 3 },
-    { min: 600, title: "Leggendario", tier: 3 }
+    { min: 0,    title: "Sconosciuto",  tier: 1 },
+    { min: 50,   title: "Conosciuto",   tier: 1 },
+    { min: 120,  title: "Rispettato",   tier: 2 },
+    { min: 220,  title: "Noto",         tier: 2 },
+    { min: 380,  title: "Temuto",       tier: 2 },
+    { min: 600,  title: "Famigerato",   tier: 3 },
+    { min: 900,  title: "Infame",       tier: 3 },
+    { min: 1300, title: "Leggendario",  tier: 3 },
+    { min: 1800, title: "Immortale",    tier: 4 },
+    { min: 2500, title: "Il Fantasma",  tier: 4 }
   ]
 };

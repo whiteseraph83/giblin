@@ -485,10 +485,11 @@ const App = {
 
     const item     = DB.items.find(i => i.id === itemId);
     const fromSlot = context === 'equipment' ? slot : null;
-    const ok = Game.sellItem(itemId, fromSlot);
+    const result = Game.sellItem(itemId, fromSlot);
 
-    if (ok) {
+    if (result && result.ok) {
       UI.toast(`Venduto per ${item ? item.sellPrice : '?'} mo.`);
+      this._handleChallenges(result.completedChallenges);
     } else {
       UI.toast('Impossibile vendere.');
     }

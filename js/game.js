@@ -400,8 +400,9 @@ const Game = {
     }
 
     char.gold += item.sellPrice;
+    const completedChallenges = this.checkChallenges('sell_item', { quality: item.quality });
     this.save();
-    return true;
+    return { ok: true, completedChallenges };
   },
 
   /* ─── Mercato Nero ──────────────────────────────────────── */
@@ -556,9 +557,10 @@ const Game = {
   /* ─── Tassa della Gilda ─────────────────────────────────── */
   guildTax() {
     const char = this.state.character;
-    const fameTier = Math.min(4, Math.floor(char.fame / 120));
+    const fameLevel = this.getFameLevel();
+    const fameTier  = Math.min(4, fameLevel.tier);
     const abilities = this.getEquipmentAbilities();
-    const base = 20 + char.level * 12 + fameTier * 20;
+    const base = 25 + char.level * 18 + Math.floor(char.level * char.level * 1.5) + fameTier * 28;
     const discounted = Math.floor(base * (1 - abilities.taxDiscount));
     return Math.max(5, discounted);
   },
@@ -802,6 +804,8 @@ const Game = {
           ok = eventType === 'pickpocket_success'; break;
         case 'buy_item':
           ok = eventType === 'buy_item'; break;
+        case 'sell_item':
+          ok = eventType === 'sell_item' && (eventData.quality || 0) >= tmpl.condition.quality; break;
         case 'wear_quality': {
           const count = Object.values(char.equipment)
             .filter(id => { if (!id) return false; const it = DB.items.find(i => i.id === id); return it && it.quality >= tmpl.condition.quality; })
