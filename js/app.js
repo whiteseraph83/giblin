@@ -27,6 +27,17 @@ const App = {
         setTimeout(() => UI.showGameOverModal(), 300);
       } else {
         UI.refresh();
+        // Recupero level up persi (es. da consumabili con XP%)
+        const pendingLvl = Game.checkLevelUp();
+        if (pendingLvl) {
+          setTimeout(() => {
+            UI.showLevelUpModal(pendingLvl.newLevel, (choices) => {
+              Game.applyLevelUp(choices);
+              UI.refresh();
+              UI.toast(`Livello ${Game.state.character.level} raggiunto!`);
+            });
+          }, 500);
+        }
       }
     } else {
       this._showPlaceholder();
@@ -489,6 +500,15 @@ const App = {
     UI.renderDiceResultPhase(applied);
     if (applied.completedChallenges?.length) this._handleChallenges(applied.completedChallenges);
     UI.refresh();
+    if (applied.levelUpResult) {
+      setTimeout(() => {
+        UI.showLevelUpModal(applied.levelUpResult.newLevel, (choices) => {
+          Game.applyLevelUp(choices);
+          UI.refresh();
+          UI.toast(`Livello ${Game.state.character.level} raggiunto!`);
+        });
+      }, 800);
+    }
   },
 
   /* ─── Gioco dei Dadi ────────────────────────────────────── */
@@ -631,6 +651,15 @@ const App = {
     }
     if (result.completedChallenges?.length) this._handleChallenges(result.completedChallenges);
     UI.refresh();
+    if (result.levelUpResult) {
+      setTimeout(() => {
+        UI.showLevelUpModal(result.levelUpResult.newLevel, (choices) => {
+          Game.applyLevelUp(choices);
+          UI.refresh();
+          UI.toast(`Livello ${Game.state.character.level} raggiunto!`);
+        });
+      }, 600);
+    }
   },
 
   sellItemFromModal() {

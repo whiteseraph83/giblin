@@ -1038,9 +1038,9 @@ const Game = {
     char.log.unshift(logEntry);
     if (char.log.length > 50) char.log.pop();
     const completedChallenges = this.checkChallenges('passive');
-    this.checkLevelUp();
+    const levelUpResult = this.checkLevelUp();
     this.save();
-    return { ...result, completedChallenges };
+    return { ...result, completedChallenges, levelUpResult };
   },
 
   statLabel(statKey) {
