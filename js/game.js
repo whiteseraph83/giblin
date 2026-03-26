@@ -221,8 +221,10 @@ const Game = {
     let rewards = { xp: 0, gold: 0, fame: 0, item: null };
     let outcomeText = '';
 
+    const XP_MULT = 1.4; // moltiplicatore globale XP
+
     if (isSuccess) {
-      let baseXp   = mission.rewards.xp;
+      let baseXp   = Math.floor(mission.rewards.xp * XP_MULT);
       let baseGold = this.rollGold(mission.rewards.goldMin, mission.rewards.goldMax);
       if (check.result === 'nat20') baseXp = Math.floor(baseXp * 1.5);
 
@@ -242,7 +244,7 @@ const Game = {
         : approach.successText;
 
     } else if (isPartial) {
-      let baseXp   = Math.floor(mission.rewards.xp * 0.5);
+      let baseXp   = Math.floor(mission.rewards.xp * XP_MULT * 0.5);
       let baseGold = this.rollGold(
         Math.floor(mission.rewards.goldMin * 0.5),
         Math.floor(mission.rewards.goldMax * 0.5)
@@ -261,7 +263,7 @@ const Game = {
         ? 'FALLIMENTO CRITICO! ' + approach.failText
         : approach.failText;
       // Aumenta taglia sul fallimento
-      char.wanted = (char.wanted || 0) + (check.result === 'nat1' ? 10 : 5);
+      char.wanted = (char.wanted || 0) + (check.result === 'nat1' ? 20 : 12);
     }
 
     // Applica ricompense
@@ -546,7 +548,7 @@ const Game = {
 
   applyPickpocketFailure() {
     const char = this.state.character;
-    char.wanted = (char.wanted || 0) + 8;
+    char.wanted = (char.wanted || 0) + 18;
     const logEntry = { day: char.day, text: 'Borseggio fallito', type: 'fail' };
     char.log.unshift(logEntry);
     if (char.log.length > 50) char.log.pop();
@@ -648,7 +650,7 @@ const Game = {
     const char       = this.state.character;
     const RARE_STATS = new Set(['str', 'con', 'wis', 'cha']);
     const RARE_W     = 3;   // peso 3× per le stat rare
-    const count      = 7 + Math.floor(Math.random() * 3); // 7–9 missioni visibili
+    const count      = 4 + Math.floor(Math.random() * 2); // 4–5 missioni visibili
 
     const fameOk = DB.missions.filter(m => m.minFame <= char.fame);
 

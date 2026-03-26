@@ -566,7 +566,7 @@ const UI = {
     document.getElementById('pp-result-phase').classList.add('d-none');
     document.getElementById('btn-pickpocket-reroll').classList.add('d-none');
     document.getElementById('pickpocket-reward').classList.add('d-none');
-    new bootstrap.Modal(document.getElementById('modal-pickpocket')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modal-pickpocket')).show();
   },
 
   showPickpocketResult(result) {
@@ -757,7 +757,7 @@ const UI = {
     document.getElementById('wanted-dot-1').classList.remove('active');
     document.getElementById('wanted-dot-2').classList.remove('active');
     document.getElementById('wanted-dot-1').classList.add('active');
-    new bootstrap.Modal(document.getElementById('modal-wanted')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modal-wanted')).show();
   },
 
   updateWantedRoundDot(roundIdx, won) {
