@@ -315,13 +315,13 @@
                     <i class="bi bi-dice-5-fill me-1"></i>Tira i Dadi!
                   </button>
                 </div>
-                <!-- Offerta reroll (visibile solo se Giblin è ultimo) -->
-                <div id="dice-reroll-offer" class="d-none text-center mt-3 p-3" style="border:1px solid rgba(231,76,60,.4);border-radius:8px;background:rgba(231,76,60,.08);">
-                  <div class="text-danger mb-1 fw-bold">Sei arrivato ultimo!</div>
-                  <div class="small text-muted mb-3">Hai <span id="dice-offer-rerolls">2</span> Rapidità di Mano rimaste. Vuoi ritirare i dadi?</div>
+                <!-- Offerta reroll (visibile se Giblin non è primo) -->
+                <div id="dice-reroll-offer" class="d-none text-center mt-3 p-3" style="border:1px solid rgba(233,196,106,.35);border-radius:8px;background:rgba(233,196,106,.07);">
+                  <div class="fw-bold mb-1" style="color:#e9c46a;">🃏 Rapidità di Mano</div>
+                  <div class="small text-muted mb-3">Hai <span id="dice-offer-rerolls">2</span> rilanci rimasti. Vuoi ritirare i dadi?</div>
                   <div class="d-flex justify-content-center gap-2">
                     <button class="btn btn-warning btn-sm" id="btn-dice-use-reroll">🃏 Ritira i Dadi</button>
-                    <button class="btn btn-outline-danger btn-sm" id="btn-dice-accept-loss">Accetta sconfitta</button>
+                    <button class="btn btn-outline-secondary btn-sm" id="btn-dice-accept-loss">Accetta risultato</button>
                   </div>
                 </div>
               </div>

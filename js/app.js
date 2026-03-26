@@ -540,19 +540,19 @@ const App = {
       if (elapsed >= DURATION) {
         clearInterval(this._diceAnimInterval);
         this._diceAnimInterval = null;
-        // Settle on real values
+        // Settle on real dice values — il totale e la classifica vengono
+        // mostrati solo nella fase "risultato", non qui durante il tiro
         for (const p of result.ranked) {
-          const el1   = document.getElementById(faceId(p.name, 1));
-          const el2   = document.getElementById(faceId(p.name, 2));
-          const elTot = document.getElementById(totalId(p.name));
-          if (el1)   el1.textContent   = p.d1;
-          if (el2)   el2.textContent   = p.d2;
-          if (elTot) elTot.textContent = p.total;
+          const el1 = document.getElementById(faceId(p.name, 1));
+          const el2 = document.getElementById(faceId(p.name, 2));
+          if (el1) el1.textContent = p.d1;
+          if (el2) el2.textContent = p.d2;
+          // il totale rimane "?" fino alla schermata risultato
         }
         // After short pause, check for reroll offer or switch to result
         setTimeout(() => {
-          if (result.outcome === 'last' && Game.diceRerollsRemaining() > 0) {
-            // Offer reroll before applying penalties
+          if (result.giblinRank !== 1 && Game.diceRerollsRemaining() > 0) {
+            // Offri reroll se non si è arrivati primi
             document.getElementById('dice-roll-btn-area').classList.add('d-none');
             document.getElementById('dice-offer-rerolls').textContent = Game.diceRerollsRemaining();
             document.getElementById('dice-reroll-offer').classList.remove('d-none');

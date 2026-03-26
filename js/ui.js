@@ -357,7 +357,7 @@ const UI = {
       el.innerHTML = '<p class="text-muted small fst-italic">Il tuo diario è ancora vuoto...</p>';
       return;
     }
-    el.innerHTML = log.slice(0, 30).map(entry => `
+    el.innerHTML = log.slice(0, 500).map(entry => `
       <div class="log-entry">
         <span class="log-day">Giorno ${entry.day}</span>
         <span class="log-${entry.type || 'text'}"> — ${entry.text}</span>

@@ -190,10 +190,11 @@ const Game = {
     }
     char.inventory.splice(idx, 1);
     const logEntry = { day: char.day, text: `Usato: ${item.name}`, type: 'success' };
-    char.log.unshift(logEntry); if (char.log.length > 200) char.log.pop();
+    char.log.unshift(logEntry); if (char.log.length > 500) char.log.pop();
     const completedChallenges = this.checkChallenges('passive');
-    this.checkLevelUp(); this.save();
-    return { ok: true, result, completedChallenges };
+    const levelUpResult = this.checkLevelUp();
+    this.save();
+    return { ok: true, result, completedChallenges, levelUpResult };
   },
 
   /* ─── Borseggio ─────────────────────────────────────────── */
@@ -338,7 +339,7 @@ const Game = {
       type: logType
     };
     char.log.unshift(logEntry);
-    if (char.log.length > 200) char.log.pop();
+    if (char.log.length > 500) char.log.pop();
 
     const levelUpResult = this.checkLevelUp();
 
@@ -354,8 +355,8 @@ const Game = {
 
   /* ─── Oggetti ──────────────────────────────────────────── */
   rollItemByTier(tier) {
-    // 30% chance di ottenere un consumabile del tier corrispondente
-    if (Math.random() < 0.30) {
+    // 50% chance di ottenere un consumabile del tier corrispondente
+    if (Math.random() < 0.50) {
       const cPool = DB.items.filter(i => i.tier === tier && i.consumable);
       if (cPool.length) return cPool[Math.floor(Math.random() * cPool.length)];
     }
@@ -509,11 +510,11 @@ const Game = {
       generated.push({ itemId: item.id, buyPrice: Math.round(item.buyPrice * variance) });
     }
 
-    // 2-3 consumabili (esclusi quelli con marketExcluded)
+    // 3-5 consumabili (esclusi quelli con marketExcluded)
     const consumablePool = DB.items.filter(i => i.consumable && !i.marketExcluded &&
       (i.tier || 1) <= Math.ceil(char.level / 3) + 1 && !usedIds.has(i.id));
     const shuffledC = [...consumablePool].sort(() => Math.random() - 0.5);
-    const cCount = 2 + Math.floor(Math.random() * 2); // 2 or 3
+    const cCount = 3 + Math.floor(Math.random() * 3); // 3, 4 or 5
     for (let i = 0; i < Math.min(cCount, shuffledC.length); i++) {
       const item = shuffledC[i];
       usedIds.add(item.id);
@@ -608,7 +609,7 @@ const Game = {
 
     const logEntry = { day: char.day, text: 'Borseggio riuscito', type: 'success' };
     char.log.unshift(logEntry);
-    if (char.log.length > 200) char.log.pop();
+    if (char.log.length > 500) char.log.pop();
 
     const levelUpResult = this.checkLevelUp();
     const completedChallenges = this.checkChallenges('pickpocket_success');
@@ -621,7 +622,7 @@ const Game = {
     char.wanted = (char.wanted || 0) + 18;
     const logEntry = { day: char.day, text: 'Borseggio fallito', type: 'fail' };
     char.log.unshift(logEntry);
-    if (char.log.length > 200) char.log.pop();
+    if (char.log.length > 500) char.log.pop();
     this.save();
     return { success: false, reward: null, outcomeText: 'Le dita non erano abbastanza veloci. Niente da fare.' };
   },
@@ -645,7 +646,7 @@ const Game = {
       char.gold -= tax;
       const logEntry = { day: char.day, text: `Tassa della Gilda pagata: ${tax} mo`, type: 'text' };
       char.log.unshift(logEntry);
-      if (char.log.length > 200) char.log.pop();
+      if (char.log.length > 500) char.log.pop();
       return { paid: true, tax, fameLost: 0 };
     } else {
       // Non può pagare: perde fama
@@ -653,7 +654,7 @@ const Game = {
       char.fame = Math.max(0, char.fame - fameLost);
       const logEntry = { day: char.day, text: `Impossibile pagare la tassa! -${fameLost} fama`, type: 'fail' };
       char.log.unshift(logEntry);
-      if (char.log.length > 200) char.log.pop();
+      if (char.log.length > 500) char.log.pop();
 
       if (char.fame <= 0) {
         this.state.gameOver = true;
@@ -716,7 +717,7 @@ const Game = {
 
     const logEntry = { day: char.day, text: `Livello ${char.level} raggiunto!`, type: 'levelup' };
     char.log.unshift(logEntry);
-    if (char.log.length > 200) char.log.pop();
+    if (char.log.length > 500) char.log.pop();
 
     this.save();
   },
@@ -783,15 +784,15 @@ const Game = {
 
   applyWantedWin() {
     const char = this.state.character;
-    const xp   = 60 + char.level * 15;
-    const fame = 30 + char.level * 5 + Math.floor((char.wanted || 0) / 5);
+    const xp   = 80 + char.level * 20;
+    const fame = 80 + char.level * 12 + Math.floor((char.wanted || 0) / 3);
     char.xp   += xp;
     char.fame += fame;
     char.wanted = Math.floor((char.wanted || 0) * 0.5);
     this.state.wantedMissionCompleted = true;
     const logEntry = { day: char.day, text: 'Cacciatore di taglie sconfitto! Taglia ridotta.', type: 'success' };
     char.log.unshift(logEntry);
-    if (char.log.length > 200) char.log.pop();
+    if (char.log.length > 500) char.log.pop();
     const completedChallenges = this.checkChallenges('passive');
     this.save();
     return { xp, fame, wantedAfter: char.wanted, completedChallenges };
@@ -805,7 +806,7 @@ const Game = {
     this.state.wantedMissionCompleted = true;
     const logEntry = { day: char.day, text: 'Sconfitto dal cacciatore di taglie! Metà oro perduto.', type: 'fail' };
     char.log.unshift(logEntry);
-    if (char.log.length > 200) char.log.pop();
+    if (char.log.length > 500) char.log.pop();
     this.save();
     return { goldLost };
   },
@@ -957,7 +958,7 @@ const Game = {
   maxDiceBet() {
     const char = this.state.character;
     const tier = this.getFameLevel().tier || 0;
-    return Math.max(10, 100 + char.level * 80 + tier * 150);
+    return Math.max(50, 500 + char.level * 500 + tier * 800);
   },
 
   getDiceBetOptions() {
@@ -1012,8 +1013,8 @@ const Game = {
     let goldDelta, fameDelta = 0, xp = 0, outcome;
     if (giblinRank === 1) {
       goldDelta = bet * 3;
-      xp        = 100 + char.level * 24 + Math.floor(bet * 0.12);
-      fameDelta = 3 + Math.floor(bet / 40);
+      xp        = 100 + char.level * 24 + Math.floor(bet * 0.03);
+      fameDelta = 3 + Math.floor(bet / 150);
       outcome   = 'win';
     } else if (giblinRank === 4) {
       goldDelta = -bet;
@@ -1023,9 +1024,9 @@ const Game = {
       const pct = giblinRank === 2 ? 0.4 : 0.15;
       goldDelta = Math.floor(bet * pct) - bet;
       xp        = giblinRank === 2
-        ? 50 + char.level * 12 + Math.floor(bet * 0.06)
-        : 20 + char.level * 6  + Math.floor(bet * 0.03);
-      fameDelta = giblinRank === 2 ? 1 + Math.floor(bet / 100) : 0;
+        ? 50 + char.level * 12 + Math.floor(bet * 0.015)
+        : 20 + char.level * 6  + Math.floor(bet * 0.008);
+      fameDelta = giblinRank === 2 ? 1 + Math.floor(bet / 300) : 0;
       outcome   = 'consolation';
     }
     return { ok: true, ranked, giblinRank, bet, goldDelta, fameDelta, xp, outcome };
@@ -1044,7 +1045,7 @@ const Game = {
     const logEntry = { day: char.day, text: logText,
       type: result.outcome === 'win' ? 'success' : result.outcome === 'last' ? 'fail' : 'neutral' };
     char.log.unshift(logEntry);
-    if (char.log.length > 200) char.log.pop();
+    if (char.log.length > 500) char.log.pop();
     const completedChallenges = this.checkChallenges('passive');
     const levelUpResult = this.checkLevelUp();
     this.save();
