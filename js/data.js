@@ -94,7 +94,7 @@ const DB = {
       desc: "Il mercato è affollato. Un mercante grasso tiene la borsa al cinturone. È il momento giusto.",
       type: "furto",
       approaches: [
-        { label: "Mano lesta", stat: "dex", dc: 11,
+        { label: "Mano lesta", stat: "dex", dc: 13,
           successText: "Le dita scivolano veloci. La borsa è tua prima che lui finisca di contrattare.",
           partialText: "Prendi metà del contenuto prima di sentire una mano sulla spalla. Ti dilégui.",
           failText: "Le sue urla attirano l'attenzione. Fuggi a mani vuote tra le bancarelle." }
@@ -107,7 +107,7 @@ const DB = {
       desc: "Un magazzino abbandonato, ma la serratura è nuova. Qualcuno ci tiene qualcosa di prezioso.",
       type: "infiltrazione",
       approaches: [
-        { label: "Scassinare", stat: "dex", dc: 12,
+        { label: "Scassinare", stat: "dex", dc: 14,
           successText: "Il grimaldello gira con un clic soddisfacente. La porta cede.",
           partialText: "La serratura cede ma fai rumore. Prendi quel che puoi e fuggi.",
           failText: "Il grimaldello si spezza. La serratura rimane chiusa." },
@@ -128,7 +128,7 @@ const DB = {
           successText: "Il tuo racconto fa sbellicare tutti. L'oste lascia il bancone. Colpo perfetto.",
           partialText: "Riesci a distrarlo ma hai solo un momento. Prendi il meno.",
           failText: "L'oste ti fissa con sospetto. Decidi di non rischiare." },
-        { label: "Destrezza sotto il bancone", stat: "dex", dc: 12,
+        { label: "Destrezza sotto il bancone", stat: "dex", dc: 14,
           successText: "La mano scivola sotto il bancone mentre lui gira la schiena.",
           partialText: "Le dita toccano la borsa ma l'oste si gira. Recuperi solo un po'.",
           failText: "Lui abbassa lo sguardo proprio mentre stai allungando la mano. Fuggi." }
@@ -141,7 +141,7 @@ const DB = {
       desc: "Un commerciante straniero nasconde qualcosa. La gilda vuole sapere dove va di notte.",
       type: "spionaggio",
       approaches: [
-        { label: "Seguirlo di nascosto", stat: "dex", dc: 11,
+        { label: "Seguirlo di nascosto", stat: "dex", dc: 13,
           successText: "Ti muovi come un'ombra. Lo segui fino al suo deposito segreto.",
           partialText: "Lo segui per un po', poi lo perdi di vista. Riferisci quel che hai visto.",
           failText: "Si accorge di essere seguito e cambia percorso." }
@@ -175,7 +175,7 @@ const DB = {
           successText: "La guardia sorride e fa passare il carretto. Affare fatto.",
           partialText: "La guardia accetta ma ti chiede di più. Il guadagno si riduce.",
           failText: "La guardia è incorruttibile. Il carretto viene bloccato." },
-        { label: "Passare inosservato", stat: "dex", dc: 11,
+        { label: "Passare inosservato", stat: "dex", dc: 13,
           successText: "Guidate il carretto dal vicolo posteriore mentre le guardie sono distratte.",
           partialText: "Passate, ma una guardia nota qualcosa. Fretta, fretta.",
           failText: "Il rumore delle ruote vi tradisce." }
@@ -188,7 +188,7 @@ const DB = {
       desc: "Un giocatore ricco siede al tavolo. Con le carte giuste — o le mani giuste — puoi svuotargli il portafoglio.",
       type: "inganno",
       approaches: [
-        { label: "Barare con destrezza", stat: "dex", dc: 12,
+        { label: "Barare con destrezza", stat: "dex", dc: 14,
           successText: "Le carte scorrono tra le dita come seta. Non si accorge di nulla.",
           partialText: "Vinci qualcosa prima che un altro giocatore alzi il sopracciglio.",
           failText: "Il tuo trucco viene scoperto. Fuggi prima che tirino fuori le spade." },
@@ -209,7 +209,7 @@ const DB = {
           successText: "Il ladro non si aspettava resistenza. Il pacco è tuo.",
           partialText: "Una colluttazione veloce. Recuperi il pacco ma con qualche danno.",
           failText: "Il ladro è più forte del previsto. Fugge con il pacco." },
-        { label: "Seguirlo e agire di soppiatto", stat: "dex", dc: 11,
+        { label: "Seguirlo e agire di soppiatto", stat: "dex", dc: 13,
           successText: "Lo segui fino al nascondiglio. Mentre dorme, recuperi il pacco.",
           partialText: "Trovi il nascondiglio ma il ladro è sveglio. Prendi il pacco e fuggi.",
           failText: "Lo perdi di vista per le vie del quartiere." }
@@ -235,7 +235,7 @@ const DB = {
       desc: "Una casa borghese nel quartiere dei mercanti. I padroni sono fuori città.",
       type: "furto",
       approaches: [
-        { label: "Entrare dalla finestra", stat: "dex", dc: 12,
+        { label: "Entrare dalla finestra", stat: "dex", dc: 14,
           successText: "Salti sul davanzale con grazia felina. Dentro e fuori in dieci minuti.",
           partialText: "Entri ma fai rumore. Prendi quel che riesci prima di fuggire.",
           failText: "Un vicino ti vede. Non è il momento." }
@@ -250,7 +250,7 @@ const DB = {
       desc: "Il palazzo del ricco mercante Aldric cela un contratto segreto. La gilda ne vuole una copia.",
       type: "infiltrazione",
       approaches: [
-        { label: "Infiltrarsi di nascosto", stat: "dex", dc: 14,
+        { label: "Infiltrarsi di nascosto", stat: "dex", dc: 16,
           successText: "Passi tra le guardie come fumo. Il contratto è nelle tue mani.",
           partialText: "Entri ma devi affrettarti. Copi solo parte del documento.",
           failText: "Una guardia ti individua. Fuggi dai tetti." },
@@ -267,7 +267,7 @@ const DB = {
       desc: "Il sigillo ufficiale del governatore vale una fortuna per chi sa come usarlo.",
       type: "furto",
       approaches: [
-        { label: "Sottrarlo durante un evento", stat: "dex", dc: 15,
+        { label: "Sottrarlo durante un evento", stat: "dex", dc: 17,
           successText: "Durante il banchetto, la tua mano è invisibile. Sigillo acquisito.",
           partialText: "Lo prendi ma qualcuno nota l'assenza. Hai poco tempo.",
           failText: "Il sigillo è sorvegliato da un occhio attento." },
@@ -284,7 +284,7 @@ const DB = {
       desc: "Una guardia sta estorcendo denaro ai commercianti del porto. La gilda vuole un messaggio.",
       type: "eliminazione",
       approaches: [
-        { label: "Tendere un agguato furtivo", stat: "dex", dc: 15,
+        { label: "Tendere un agguato furtivo", stat: "dex", dc: 17,
           successText: "Nell'ombra del vicolo, la guardia non sa cos'è successo.",
           partialText: "La guardia sopravvive ma è fuori combattimento. Missione parziale.",
           failText: "La guardia era in coppia. Fuggi prima di essere identificato." },
@@ -301,7 +301,7 @@ const DB = {
       desc: "Prove imbarazzanti per un nobile devono sparire dall'archivio del tribunale.",
       type: "recupero",
       approaches: [
-        { label: "Infiltrarsi di notte", stat: "dex", dc: 14,
+        { label: "Infiltrarsi di notte", stat: "dex", dc: 16,
           successText: "Nell'oscurità, l'archivio è tuo. I documenti spariscono.",
           partialText: "Trovi i documenti ma devi fuggire prima di recuperarli tutti.",
           failText: "Una guardia notturna fa il giro anticipato." },
@@ -335,7 +335,7 @@ const DB = {
       desc: "La tesoreria cittadina ha una vulnerabilità durante il cambio della guardia. Una finestra di tre minuti.",
       type: "furto",
       approaches: [
-        { label: "Muoversi rapidissimo", stat: "dex", dc: 15,
+        { label: "Muoversi rapidissimo", stat: "dex", dc: 17,
           successText: "Tre minuti sono più che sufficienti per le tue mani veloci.",
           partialText: "Prendi qualcosa ma il tempo è meno del previsto.",
           failText: "Il cambio della guardia è anticipato. Niente da fare." },
@@ -352,7 +352,7 @@ const DB = {
       desc: "Una banda rivale vuole un distretto sguarnito per una notte. Pagano bene per chi elimina le pattuglie.",
       type: "sabotaggio",
       approaches: [
-        { label: "Neutralizzarle nell'ombra", stat: "dex", dc: 14,
+        { label: "Neutralizzarle nell'ombra", stat: "dex", dc: 16,
           successText: "Una dopo l'altra, le guardie cadono nel sonno grazie alle tue erbe.",
           partialText: "Neutralizzi metà delle pattuglie. Il distretto è parzialmente sguarnito.",
           failText: "Una guardia sveglia allarma le altre." },
@@ -369,7 +369,7 @@ const DB = {
       desc: "Un informatore sta per rivelare i nomi dei membri della gilda alle autorità. Va fermato.",
       type: "eliminazione",
       approaches: [
-        { label: "Agguato silenzioso", stat: "dex", dc: 16,
+        { label: "Agguato silenzioso", stat: "dex", dc: 18,
           successText: "L'informatore non consegnerà mai quel rapporto.",
           partialText: "Missione compiuta ma non in silenzio. La gilda è contrariata.",
           failText: "L'informatore era protetto da una guardia del corpo." },
@@ -403,7 +403,7 @@ const DB = {
           successText: "La tua recitazione è convincente. Accedi agli archivi come uno di loro.",
           partialText: "Ti insospettiscono ma non abbastanza. Informazioni parziali.",
           failText: "Ti smascherano subito. Fuga disperata." },
-        { label: "Entrare di nascosto", stat: "dex", dc: 16,
+        { label: "Entrare di nascosto", stat: "dex", dc: 18,
           successText: "Nessuno si accorge di te. Gli archivi sono aperti.",
           partialText: "Entri ma sei costretto a uscire prima del previsto.",
           failText: "La sicurezza è impenetrabile per via furtiva." }
@@ -416,7 +416,7 @@ const DB = {
       desc: "Un messaggio codificato deve raggiungere una spia in incognito. Non devi essere visto né fermato.",
       type: "spionaggio",
       approaches: [
-        { label: "Muoversi inosservato", stat: "dex", dc: 13,
+        { label: "Muoversi inosservato", stat: "dex", dc: 15,
           successText: "Consegna effettuata. Nessuno ti ha seguito.",
           partialText: "Consegnato ma sei stato notato. La spia cambierà posto.",
           failText: "Una guardia ti ferma per un controllo. Devi disfarti del messaggio." },
@@ -433,7 +433,7 @@ const DB = {
       desc: "Un nobile vuole il cavallo campione del suo rivale prima della corsa reale.",
       type: "furto",
       approaches: [
-        { label: "Portarlo via di notte", stat: "dex", dc: 15,
+        { label: "Portarlo via di notte", stat: "dex", dc: 17,
           successText: "Il cavallo ti segue docilmente nell'oscurità. Gentiluomo equestre.",
           partialText: "Il cavallo nitrisce una volta. Hai appena il tempo di allontanarti.",
           failText: "Il palafreniere era ancora sveglio." },
@@ -452,7 +452,7 @@ const DB = {
       desc: "La corona del Duca sarà esposta durante la festa d'incoronazione. Una notte, una finestra.",
       type: "furto",
       approaches: [
-        { label: "Operazione ombra", stat: "dex", dc: 17,
+        { label: "Operazione ombra", stat: "dex", dc: 19,
           successText: "La corona sparisce dalla teca nel momento esatto in cui le luci si abbassano.",
           partialText: "Prendi la corona ma scatta un allarme. Fuga acrobatica.",
           failText: "Le misure di sicurezza erano state raddoppiate." }
@@ -465,7 +465,7 @@ const DB = {
       desc: "Il Capitano Mordrek è il pilastro della sicurezza cittadina. Qualcuno vuole quel pilastro rimosso.",
       type: "eliminazione",
       approaches: [
-        { label: "Agguato nell'ombra", stat: "dex", dc: 18,
+        { label: "Agguato nell'ombra", stat: "dex", dc: 20,
           successText: "Il Capitano cade. La città si trova improvvisamente vulnerabile.",
           partialText: "Ferito ma non eliminato. Il contratto è parzialmente soddisfatto.",
           failText: "Mordrek era già allertato. Fuga tra le guardie." },
@@ -482,7 +482,7 @@ const DB = {
       desc: "Un documento firmato dal Re è necessario per un piano che cambierà la storia.",
       type: "infiltrazione",
       approaches: [
-        { label: "Passare dalle grondaie", stat: "dex", dc: 18,
+        { label: "Passare dalle grondaie", stat: "dex", dc: 20,
           successText: "Arrampicato come un gatto, raggiungi le stanze private del Re.",
           partialText: "Entri ma devi deviare. Raggiungi solo l'anticamera.",
           failText: "Le grondaie erano trappola. Le guardie ti aspettavano." },
@@ -499,7 +499,7 @@ const DB = {
       desc: "Il potente mago Zelindor custodisce un grimorio che non gli appartiene. Recuperalo.",
       type: "recupero",
       approaches: [
-        { label: "Rubare mentre dorme", stat: "dex", dc: 17,
+        { label: "Rubare mentre dorme", stat: "dex", dc: 19,
           successText: "I maghi dormono profondamente dopo i rituali. Il grimorio è tuo.",
           partialText: "Prendi il grimorio ma un guardiano magico si attiva. Fuggi.",
           failText: "Il grimorio era protetto da incantesimi di allarme." },
@@ -516,7 +516,7 @@ const DB = {
       desc: "Il Conte Varen sta vendendo informazioni ai nemici del regno. Il Re vuole silenzio permanente.",
       type: "eliminazione",
       approaches: [
-        { label: "Veleno nel vino", stat: "dex", dc: 17,
+        { label: "Veleno nel vino", stat: "dex", dc: 19,
           successText: "Il Conte porta il calice alle labbra durante il banchetto. Non si alzerà.",
           partialText: "Il veleno è stato diluito. Sopravviverà ma è neutralizzato.",
           failText: "L'assaggiatore reale intercetta il calice avvelenato." }
@@ -546,7 +546,7 @@ const DB = {
       desc: "L'Inquisizione sta pianificando una purga. I documenti che la autorizzano devono sparire.",
       type: "sabotaggio",
       approaches: [
-        { label: "Bruciare l'archivio", stat: "dex", dc: 17,
+        { label: "Bruciare l'archivio", stat: "dex", dc: 19,
           successText: "In pochi minuti, anni di indagini dell'Inquisizione vanno in fumo.",
           partialText: "Bruci parte dell'archivio prima di essere scoperto.",
           failText: "Le guardie dell'Inquisizione sono onnipresenti." },
@@ -563,7 +563,7 @@ const DB = {
       desc: "Il sigillo personale del Re è stato rubato da una spia nemica. Se venisse usato, la guerra sarebbe inevitabile.",
       type: "recupero",
       approaches: [
-        { label: "Seguire la spia e agire", stat: "dex", dc: 18,
+        { label: "Seguire la spia e agire", stat: "dex", dc: 20,
           successText: "La segui fino al punto di passaggio. Sigillo recuperato, spia neutralizzata.",
           partialText: "Recuperi il sigillo ma la spia riesce a fuggire. Missione parziale.",
           failText: "La spia si accorge di essere seguita e accelera la consegna." },
